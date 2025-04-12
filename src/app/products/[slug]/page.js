@@ -99,7 +99,7 @@ export default function DetailProduct() {
   const brand = detailProduct.brandID || {};
 
   // Handle tags safely
-  const tags = detailProduct.tags;
+  const tags = detailProduct.tags || []; // Default to empty array if undefined
 
   // Function to translate tag keys from Vietnamese to English
   const translateTagKey = (key) => {
