@@ -262,7 +262,7 @@ export default function DetailProduct() {
               <span className="text-2xl">Volume</span>
 
               <div className="flex gap-4">
-                {detailProduct.variants
+                {detailProduct?.variants
                   .filter((variant) => variant.available) // Chỉ hiển thị variant có available=true
                   .map((variant, index) => (
                     <button
