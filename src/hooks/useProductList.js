@@ -17,41 +17,50 @@ export function useProductList(
     hasMore: false,
   });
 
-  useEffect(() => {
-    const fetchProductList = async () => {
-      setLoading(true);
-      try {
-        let url = isAdmin
-          ? `/product-list?admin=true&page=${page}&limit=${limit}`
-          : `/product-list?page=${page}&limit=${limit}`;
+  const buildUrl = () => {
+    let url = isAdmin
+      ? `/product-list?admin=true&page=${page}&limit=${limit}`
+      : `/product-list?page=${page}&limit=${limit}`;
 
-        if (searchText) {
-          url += `&search=${encodeURIComponent(searchText)}`;
-        }
+    if (searchText) {
+      url += `&search=${encodeURIComponent(searchText)}`;
+    }
+    return url;
+  };
 
-        const response = await api.get(url);
+  const fetchProductList = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get(buildUrl());
 
-        if (response.status === 200) {
-          setProductList(response.data.products || []);
-          setPagination({
-            currentPage: response.data.pagination.currentPage,
-            totalPages: response.data.pagination.totalPages,
-            totalProducts: response.data.pagination.totalProducts,
-            hasMore: response.data.pagination.hasMore,
-          });
-        } else {
-          setError("Failed to fetch products");
-        }
-      } catch (err) {
-        console.error("Error fetching product list:", err);
-        setError(err.message || "An error occurred while fetching products");
-      } finally {
-        setLoading(false);
+      if (response.status === 200) {
+        const { currentPage, totalPages, totalProducts } =
+          response.data.pagination;
+        setProductList(response.data.products || []);
+        setPagination({
+          currentPage,
+          totalPages,
+          totalProducts,
+          hasMore: currentPage < totalPages,
+        });
+      } else {
+        setError("Không thể lấy danh sách sản phẩm");
       }
-    };
+    } catch (err) {
+      console.error("Error fetching product list:", err);
+      setError(
+        err?.response?.data?.message ||
+          err.message ||
+          "Đã xảy ra lỗi khi tải danh sách sản phẩm"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchProductList();
   }, [isAdmin, page, limit, searchText]);
 
-  return { productList, loading, error, pagination };
+  return { productList, loading, error, pagination, refetch: fetchProductList };
 }
