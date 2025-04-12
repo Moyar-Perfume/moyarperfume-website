@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("/fonts/LibreFranklin/static/LibreFranklin-Regular.ttf")
+    format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("/fonts/LibreFranklin/static/LibreFranklin-Medium.ttf")
+    format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("/fonts/LibreFranklin/static/LibreFranklin-SemiBold.ttf")
+    format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("/fonts/LibreFranklin/static/LibreFranklin-Bold.ttf")
+    format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("/fonts/LibreFranklin/static/LibreFranklin-ExtraBold.ttf")
+    format("truetype");
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Gotu";
+  src: url("/fonts/Gotu-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+:root {
+  --black: #191919;
+  --white: #f9f9f9;
+  --rose: #f2bfc0;
+  --floral: #f2ebe2;
+  --sweet: #bfb6e5;
+  --ocean: #b0cfe2;
+  --green: #367072;
+  --font-primary: "Libre Franklin", sans-serif;
+  --font-secondary: "Gotu", sans-serif;
+}
+
+body {
+  font-family: var(--font-primary);
+}
+.ant-carousel,
+.ant-typography,
+.ant-btn,
+.ant-input,
+.ant-menu,
+.ant-tabs,
+.ant-select,
+.ant-tooltip,
+.ant-modal,
+.ant-dropdown {
+  font-family: var(--font-primary) !important;
+}
+
+.font-gotu {
+  font-family: var(--font-secondary);
+}
+
+.ant-carousel .slick-prev,
+.ant-carousel .slick-next {
+  color: black !important; /* Đổi màu nếu cần */
+}
+
+.custom-carousel .slick-prev,
+.custom-carousel .slick-next {
+  color: white !important;
+}
+
+.custom-carousel .slick-prev::after,
+.custom-carousel .slick-next::after {
+  border-block-width: 3px 0 !important;
+  border-inline-width: 3px 0 !important;
+}
+
+.ql-container {
+  font-size: 20px !important;
+}
+
+@layer utilities {
+  /* Custom scrollbar for WebKit browsers (Chrome, Safari) */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px; /* Độ rộng của thanh cuộn */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Màu nền track */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #000; /* Màu của thanh cuộn */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #000; /* Màu khi hover */
+  }
+}
