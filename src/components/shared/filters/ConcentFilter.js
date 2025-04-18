@@ -9,7 +9,7 @@ const concentrations = [
   { id: 4, name: "Parfum (Extrait de Parfum)" },
 ];
 
-export default function Concent() {
+export default function ConcentFilter() {
   const { selectedConcents, toggleConcent } = useFilter();
 
   return (
@@ -21,12 +21,12 @@ export default function Concent() {
       </div>
       <ul className="w-[80%] flex flex-col gap-6">
         {concentrations.map((concentration) => {
-          const isSelected = selectedConcents.includes(concentration.id);
+          const isSelected = selectedConcents.includes(concentration.name);
 
           return (
             <li
               key={concentration.id}
-              onClick={() => toggleConcent(concentration.id)}
+              onClick={() => toggleConcent(concentration.name)}
               className={`flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity`}
             >
               <motion.div

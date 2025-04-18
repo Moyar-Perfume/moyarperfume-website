@@ -6,8 +6,8 @@ const AdminHeader = () => {
   const router = useRouter();
 
   const handleLogout = async () => {
-    await signOut({ redirect: false });
     router.push("/admin/login");
+    await signOut({ redirect: false });
   };
 
   const items = [

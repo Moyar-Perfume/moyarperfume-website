@@ -27,6 +27,7 @@ const ProductSchema = new mongoose.Schema(
       ref: "Brand",
       required: true,
     },
+    views: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

@@ -25,21 +25,8 @@ export default function AddProduct() {
   const router = useRouter();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [fileList, setFileList] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [mainImage, setMainImage] = useState("");
-  const [customTags, setCustomTags] = useState({
-    nongdo: [],
-    mua: [],
-    gioitinh: [],
-    muihuong: [],
-    doluumui: [],
-    notehuong: [],
-    phongcach: [],
-    dotuoi: [],
-    toahuong: [],
-    phathanh: [],
-  });
 
   const handleSubmit = async () => {
     try {
@@ -264,8 +251,16 @@ export default function AddProduct() {
             />
           </div>
 
+          {/* Tags sản phẩm */}
+          <ProductTagsCard
+            form={form}
+            selectedTags={selectedTags}
+            setSelectedTags={setSelectedTags}
+            mainImageUrl={mainImage}
+          />
+
           {/* Biến thể sản phẩm */}
-          <Card title="Biến thể sản phẩm" className="mb-6">
+          <Card title="Biến thể sản phẩm" className="my-6">
             <Form.List name="variants">
               {(fields, { add, remove }) => (
                 <>
@@ -360,14 +355,6 @@ export default function AddProduct() {
               )}
             </Form.List>
           </Card>
-
-          {/* Tags sản phẩm */}
-          <ProductTagsCard
-            form={form}
-            selectedTags={selectedTags}
-            setSelectedTags={setSelectedTags}
-            mainImageUrl={mainImage}
-          />
         </Form>
 
         {/* Nút submit - tách khỏi Form để tránh auto submit */}

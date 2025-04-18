@@ -19,8 +19,11 @@ export async function GET(request) {
     const exclude = searchParams.get("exclude");
     const productId = searchParams.get("productId");
     const gioitinh = searchParams.get("gender");
-    const isAdmin = searchParams.get("admin") === "true"; // Kiểm tra xem có phải từ trang admin không
-    const search = searchParams.get("search") || ""; // Thêm tham số tìm kiếm
+    const isAdmin = searchParams.get("admin") === "true";
+    const search = searchParams.get("search") || "";
+    const nongdo = searchParams.getAll("nongdo");
+
+    const latest = searchParams.get("latest") === "true";
 
     // Thêm các tham số lọc mới
     const minPrice = searchParams.get("minPrice")
@@ -67,6 +70,10 @@ export async function GET(request) {
       query.tags = { $in: [`gioitinh_Nước Hoa ${gioitinh}`] }; // lọc theo tag giới tính
     }
 
+    if (nongdo.length > 0) {
+      query.tags = { $in: nongdo.map((val) => `nongdo_${val}`) };
+    }
+
     // Lọc theo giá
     if (minPrice !== null || maxPrice !== null) {
       query.price = {};
@@ -76,24 +83,6 @@ export async function GET(request) {
       if (maxPrice !== null) {
         query.price.$lte = maxPrice;
       }
-    }
-
-    // Lọc theo tags
-    if (tags && tags.length > 0) {
-      // Tạo mảng các điều kiện lọc cho từng tag
-      const tagConditions = tags.map((tag) => {
-        // Kiểm tra xem tag có prefix không
-        if (tag.includes("_")) {
-          const [prefix, value] = tag.split("_");
-          return { tags: { $in: [tag] } };
-        } else {
-          // Nếu không có prefix, tìm kiếm tag chứa giá trị này
-          return { tags: { $regex: tag, $options: "i" } };
-        }
-      });
-
-      // Kết hợp các điều kiện với $and
-      query.$and = tagConditions;
     }
 
     // Tính toán skip cho phân trang
@@ -110,7 +99,7 @@ export async function GET(request) {
       .populate("brandID")
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 }); // Sắp xếp theo thứ tự mới nhất
+      .sort(latest ? { createdAt: -1 } : { createdAt: 1 }); // Sắp xếp theo thứ tự mới nhất nếu latest là true
 
     return NextResponse.json(
       {

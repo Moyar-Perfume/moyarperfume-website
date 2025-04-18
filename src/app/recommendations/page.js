@@ -19,7 +19,8 @@ export default function Recommendations() {
         setError(null);
         const res = await api.get("/product-list?gioitinh=Nam");
         const data = await res.data;
-        setMaleParfum(data);
+
+        setMaleParfum(data.products);
       } catch (err) {
         console.error("Lỗi khi lấy sản phẩm:", err);
         setError("Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.");
@@ -67,7 +68,7 @@ export default function Recommendations() {
                   alt="Male Parfum Collection"
                 />
               </div>
-              <div className="w-2/3 relative pl-20">
+              {/* <div className="w-2/3 relative pl-20">
                 <div className="flex flex-col min-h-[500px]">
                   <div className="w-full max-w-[1400px] mx-auto">
                     <ConfigProvider
@@ -95,7 +96,7 @@ export default function Recommendations() {
                             <div className="flex items-center">
                               <Product
                                 product={product}
-                                imageSize="h-[100px]"
+                                imageSize="h-[200px]"
                               />
                             </div>
                           </div>
@@ -108,7 +109,7 @@ export default function Recommendations() {
                     <Button className="whitespace-nowrap">See more</Button>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

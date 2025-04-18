@@ -33,12 +33,6 @@ const ProductTagsCard = ({
         label: "Parfum (Extrait de Parfum)",
       },
     ],
-    mua: [
-      { value: "mua_Mùa Xuân", label: "Mùa Xuân" },
-      { value: "mua_Mùa Hè", label: "Mùa Hè" },
-      { value: "mua_Mùa Thu", label: "Mùa Thu" },
-      { value: "mua_Mùa Đông", label: "Mùa Đông" },
-    ],
     gioitinh: [
       { value: "gioitinh_Nước Hoa Nam", label: "Nước Hoa Nam" },
       { value: "gioitinh_Nước Hoa Nữ", label: "Nước Hoa Nữ" },
@@ -88,7 +82,6 @@ const ProductTagsCard = ({
   function getTabLabel(groupKey) {
     const labelMap = {
       nongdo: "Nồng độ",
-      mua: "Mùa",
       gioitinh: "Giới tính",
       notehuong: "Note Hương",
       muihuong: "Mùi hương",
@@ -109,7 +102,6 @@ const ProductTagsCard = ({
   function getTagColor(groupKey) {
     const colorMap = {
       nongdo: "blue",
-      mua: "green",
       gioitinh: "purple",
       muihuong: "red",
       notehuong: "orange",
@@ -125,7 +117,6 @@ const ProductTagsCard = ({
 
   const [customTags, setCustomTags] = useState({
     nongdo: [],
-    mua: [],
     gioitinh: [],
     toahuong: [],
     doluumui: [],
@@ -210,7 +201,7 @@ const ProductTagsCard = ({
         return;
       }
 
-      if (scrollY > 1300) {
+      if (scrollY > 700) {
         setIsTagsFixed(true);
       } else {
         setIsTagsFixed(false);
@@ -460,7 +451,7 @@ const ProductTagsCard = ({
                       <div className="flex flex-col items-center w-full mb-4">
                         {/* Khối chứa hình ảnh với shadow có màu tùy chỉnh */}
                         <div
-                          className="w-32 h-32 rounded-md mb-4 bg-transparent flex items-center justify-center overflow-hidden"
+                          className="w-[200px] h-[200px] rounded-md mb-4 bg-transparent flex items-center justify-center overflow-hidden"
                           style={{
                             position: "relative",
                           }}
@@ -471,14 +462,13 @@ const ProductTagsCard = ({
                                 mainImageUrl ||
                                 "/placeholder-product/placeholder-product.png"
                               }
-                              width={100}
-                              height={100}
+                              fill
                               alt="Chai nước hoa"
                               style={{
                                 objectFit: "contain",
-                                filter: ` drop-shadow(0 0 5px rgba(${shadowValues.r}, ${shadowValues.g}, ${shadowValues.b}, 1))
-                                          drop-shadow(0 0 8px rgba(${shadowValues.r}, ${shadowValues.g}, ${shadowValues.b}, 0.8))
-                                          drop-shadow(0 0 10px rgba(${shadowValues.r}, ${shadowValues.g}, ${shadowValues.b}, 0.4))`,
+                                filter: ` drop-shadow(0 0 10px rgba(${shadowValues.r}, ${shadowValues.g}, ${shadowValues.b}, 0.5))
+                                        drop-shadow(0 0 20px rgba(${shadowValues.r}, ${shadowValues.g}, ${shadowValues.b}, 0.3))
+                                        drop-shadow(0 0 30px rgba(${shadowValues.r}, ${shadowValues.g}, ${shadowValues.b}, 0.2))`,
                               }}
                             />
                           </div>
@@ -880,75 +870,6 @@ const ProductTagsCard = ({
                   }
                   allowClear
                 />
-              ) : groupKey === "mua" ? (
-                <div className="mb-4">
-                  <div className="flex flex-wrap gap-2">
-                    {getTagsForGroup(groupKey).map((option) => {
-                      const isSelected = selectedTags?.some(
-                        (tag) => tag === option.value
-                      );
-                      return (
-                        <Tag
-                          key={option.value}
-                          color={isSelected ? getTagColor(groupKey) : "default"}
-                          style={{
-                            cursor: "pointer",
-                            borderColor: isSelected
-                              ? getTagColor(groupKey)
-                              : "#d9d9d9",
-                            backgroundColor: isSelected ? undefined : "white",
-                          }}
-                          onClick={() => {
-                            // Lấy tất cả các tag hiện tại
-                            const allCurrentTags =
-                              form.getFieldValue("tags") || [];
-
-                            // Tìm những tag đã chọn trong nhóm này
-                            const selectedGroupTags = allCurrentTags.filter(
-                              (tag) => tag.startsWith(groupKey + "_")
-                            );
-
-                            // Kiểm tra xem tag đã được chọn chưa
-                            const isAlreadySelected =
-                              selectedGroupTags.includes(option.value);
-
-                            // Tạo danh sách mới
-                            let newGroupTags;
-                            if (isAlreadySelected) {
-                              // Nếu đã chọn rồi thì bỏ chọn
-                              newGroupTags = selectedGroupTags.filter(
-                                (tag) => tag !== option.value
-                              );
-                            } else {
-                              // Nếu chưa chọn thì thêm vào
-                              newGroupTags = [
-                                ...selectedGroupTags,
-                                option.value,
-                              ];
-                            }
-
-                            // Lọc ra các tag không thuộc nhóm hiện tại
-                            const tagsFromOtherGroups = allCurrentTags.filter(
-                              (tag) => !tag.startsWith(groupKey + "_")
-                            );
-
-                            // Kết hợp với các tag mới chọn
-                            const newTags = [
-                              ...tagsFromOtherGroups,
-                              ...newGroupTags,
-                            ];
-
-                            // Cập nhật form và state
-                            form.setFieldsValue({ tags: newTags });
-                            setSelectedTags(newTags);
-                          }}
-                        >
-                          {option.label}
-                        </Tag>
-                      );
-                    })}
-                  </div>
-                </div>
               ) : (
                 <Select
                   mode="multiple"

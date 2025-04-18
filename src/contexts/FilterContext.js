@@ -85,12 +85,12 @@ export function FilterContext({ children }) {
   // Concentrations
 
   const [selectedConcents, setSelectedConcents] = useState([]);
-  const toggleConcent = (id) => {
+  const toggleConcent = (name) => {
     setSelectedConcents((prev) => {
-      if (prev.includes(id)) {
-        return prev.filter((concentId) => concentId !== id);
+      if (prev.includes(name)) {
+        return prev.filter((concentName) => concentName !== name);
       } else {
-        return [...prev, id];
+        return [...prev, name];
       }
     });
   };
@@ -148,105 +148,6 @@ export function FilterContext({ children }) {
     );
   };
 
-  const filterProducts = (products) => {
-    return products.filter((product) => {
-      const productTags = product.tag || []; // Handle case where tag might be undefined
-
-      // Filter by concentration (nongdo)
-      if (selectedConcents.length > 0) {
-        const concentMatch = selectedConcents.some((id) => {
-          const concentName = concentrations.find((c) => c.id === id)?.name;
-          console.log(concentName);
-          return (
-            concentName &&
-            productTags.some(
-              (tag) => tag.startsWith("nongdo_") && tag.includes(concentName)
-            )
-          );
-        });
-        if (!concentMatch) return false;
-      }
-
-      // Filter by seasons (mua)
-      if (selectedSeasons.length > 0) {
-        const seasonMatch = selectedSeasons.some((id) => {
-          const seasonName = seasons.find((s) => s.id === id)?.name;
-          const seasonNameVN = {
-            Spring: "Mùa Xuân",
-            Summer: "Mùa Hè",
-            Autumn: "Mùa Thu",
-            Winter: "Mùa Đông",
-          }[seasonName];
-
-          return (
-            seasonNameVN &&
-            productTags.some(
-              (tag) => tag.startsWith("mua_") && tag.includes(seasonNameVN)
-            )
-          );
-        });
-        if (!seasonMatch) return false;
-      }
-
-      // Filter by scent and subScent
-      // Filter by scent and subScent
-      if (selectedScent !== -1 || selectedSubScents.length > 0) {
-        const scentTags = new Set(); // Dùng Set để tránh trùng lặp
-
-        if (selectedScent !== -1) {
-          const scentItem = scents.find((s) => s.id === selectedScent);
-          if (scentItem) {
-            const scentNameMap =
-              {
-                Citrus: "Citrus (Hương Cam Chanh)",
-                Floral: "Floral (Hương Hoa Cỏ)",
-                Woody: "Woody (Hương Gỗ)",
-                Ambery: "Oriental (Hương Phương Đông)",
-                "Aromatic Fougere": "Aromatic (Hương Thơm Ngát)",
-                Leather: "Leather (Hương Da Thuộc)",
-                Chypre: "Chypre",
-              }[scentItem.name] || scentItem.name;
-
-            scentTags.add(scentNameMap); // Chỉ thêm một giá trị
-          }
-        }
-
-        if (selectedSubScents.length > 0) {
-          selectedSubScents.forEach((id) => {
-            const subScentItem = subScents.find((n) => n.id === id);
-            if (subScentItem) {
-              const subScentNameMap =
-                {
-                  Green: "Green",
-                  Fruity: "Fruity (Trái Cây)",
-                  Spicy: "Spicy (Hương Gia Vị)",
-                  Watery: "Aquatic (Biển)",
-                  Gourmand: "Sweet (Ngọt)",
-                }[subScentItem.name] || subScentItem.name;
-
-              scentTags.add(subScentNameMap);
-            }
-          });
-        }
-
-        console.log("Scent Tags cần tìm:", [...scentTags]);
-
-        // Kiểm tra sản phẩm có đủ các muihuong_
-        const scentMatch = [...scentTags].every((scent) =>
-          productTags.some(
-            (tag) => tag.startsWith("muihuong_") && tag.includes(scent)
-          )
-        );
-
-        console.log("Scent Match:", scentMatch);
-
-        if (!scentMatch) return false;
-      }
-
-      return true;
-    });
-  };
-
   return (
     <DataContext.Provider
       value={{
@@ -278,9 +179,6 @@ export function FilterContext({ children }) {
         selectedSubScents,
         setSelectedSubScents,
         toggleSubScent,
-
-        //Filter Product
-        filterProducts,
       }}
     >
       {children}

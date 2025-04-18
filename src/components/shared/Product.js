@@ -89,8 +89,8 @@ const Product = ({
       onClick={onClick}
     >
       {/* Product Image with subtle shadow */}
-      <Link href={productUrl} className="w-full block relative">
-        <div className="w-full flex items-center justify-center overflow-hidden">
+      <Link href={productUrl} className="w-full block relative" legacyBehavior>
+        <a className="w-full flex items-center justify-center overflow-hidden">
           <div
             className={`relative w-full ${imageSize} max-w-[400px] overflow-hidden rounded-sm transition-all duration-300`}
           >
@@ -115,7 +115,7 @@ const Product = ({
               }}
             />
           </div>
-        </div>
+        </a>
       </Link>
 
       <div className="text-center flex items-center gap-2 w-full mt-5">
@@ -137,14 +137,14 @@ const Product = ({
       <div className="w-16 h-0.5 bg-gray-200 my-2"></div>
 
       {/* Conditional content based on hover state - MOVED TO BOTTOM */}
-      <div className="w-full relative" style={{ height: "150px" }}>
+      <div className="w-full relative h-[130px]">
         {/* Always visible non-hover state */}
         <div
           className={`w-full absolute flex items-center justify-center transition-all duration-300 ${
             isHovered ? "opacity-0 transform -translate-y-2" : "opacity-100"
           }`}
         >
-          <div className="bg-gray-50 px-5 py-2 rounded-md border border-gray-100 w-full max-w-[250px] text-center">
+          <div className="bg-gray-50 px-5 rounded-md w-full max-w-[250px] text-center">
             <div className="text-center  font-medium text-gray-800 grid">
               <span className="text-lg">
                 {volumeCount > 0 ? `${volumeCount} volumes` : ""}
@@ -159,7 +159,7 @@ const Product = ({
 
         {/* Hover state content - absolutely positioned */}
         <div
-          className={`w-full absolute inset-0 bg-white z-10 flex flex-col justify-center px-3 py-3 transition-all duration-300 rounded-sm border border-gray-100 shadow-sm ${
+          className={`w-full absolute inset-0 bg-white z-10 flex flex-col justify-center px-3  transition-all duration-300 ${
             isHovered
               ? "opacity-100 transform translate-y-0"
               : "opacity-0 transform translate-y-2 pointer-events-none"
@@ -198,7 +198,7 @@ const Product = ({
           )}
 
           {/* Price - more compact */}
-          <div className="text-center my-2 text-black">
+          <div className="text-center mb-2 text-black">
             <span className="text-base">
               {selectedVariants && selectedVariants.price
                 ? selectedVariants.price.toLocaleString()

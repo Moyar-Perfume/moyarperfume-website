@@ -1,5 +1,5 @@
 import SeasonFilter from "@/components/shared/filters/SeasonFilter";
-import Concent from "@/components/shared/filters/ConcentFilter";
+import ConcentFilter from "@/components/shared/filters/ConcentFilter";
 import BrandFilter from "@/components/shared/filters/BrandFilter";
 import BudgetFilter from "@/components/shared/filters/BudgetFilter";
 import ScentsFilter from "@/components/shared/filters/ScentsFilter";
@@ -13,7 +13,7 @@ export default function ProductFilter() {
         <hr className="absolute mt-[12px] border-white w-full items-start" />
         <BudgetFilter />
         <SeasonFilter />
-        <Concent />
+        <ConcentFilter />
         <BrandFilter />
       </div>
 

@@ -1,105 +1,66 @@
 "use client";
 
 import api from "@/constants/apiURL";
-import { useFilter } from "@/contexts/FilterContext";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState } from "react";
 import Product from "@/components/shared/Product";
+import { useFilter } from "@/contexts/FilterContext";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { filterProducts } = useFilter();
 
-  // State cho phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const productsPerPage = 12;
+  const productsPerPage = 8;
 
-  // Refs cho infinite scroll
-  const observer = useRef();
-  const lastProductElementRef = useRef();
+  const { selectedConcents } = useFilter();
 
-  // Hàm tải sản phẩm từ API
-  const fetchProducts = async (page = 1, append = false) => {
+  console.log("selectedConcents", selectedConcents);
+
+  const buildQueryParams = () => {
+    const queryParams = new URLSearchParams();
+
+    queryParams.append("page", currentPage);
+    queryParams.append("limit", productsPerPage);
+
+    selectedConcents.forEach((name) => {
+      queryParams.append("nongdo", name);
+    });
+    return queryParams;
+  };
+
+  // Gọi API
+  const fetchProducts = async (page = 1) => {
+    setLoading(true);
     try {
-      setLoading(true);
-
-      // Tạo query string cho phân trang
-      const queryParams = new URLSearchParams();
-      queryParams.append("page", page);
-      queryParams.append("limit", productsPerPage);
-
-      // Thêm các tham số lọc nếu có
-      // Lưu ý: Chúng ta không thể truy cập trực tiếp các tham số lọc từ filterProducts
-      // nên sẽ để API xử lý việc lọc dựa trên các tham số được gửi từ client
+      const queryParams = buildQueryParams();
+      queryParams.set("page", page); // Cập nhật page khi gọi
 
       const response = await api.get(`/product-list?${queryParams.toString()}`);
-
       const { products: newProducts, pagination } = response.data;
 
-      // Cập nhật state
-      if (append) {
-        // Kiểm tra trùng lặp trước khi thêm sản phẩm mới
-        const existingSlugs = new Set(products.map((p) => p.slug));
-        const uniqueNewProducts = newProducts.filter(
-          (p) => !existingSlugs.has(p.slug)
-        );
-
-        setProducts((prev) => [...prev, ...uniqueNewProducts]);
-      } else {
-        setProducts(newProducts);
-      }
-
-      setCurrentPage(pagination.currentPage);
+      setProducts(newProducts);
       setTotalPages(pagination.totalPages);
       setTotalProducts(pagination.totalProducts);
-      setHasMore(pagination.hasMore);
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
       setLoading(false);
-      setIsLoadingMore(false);
     }
   };
 
-  // Tải sản phẩm ban đầu
   useEffect(() => {
-    fetchProducts(1, false);
-  }, [filterProducts]);
+    setCurrentPage(1);
+    fetchProducts(1);
+  }, [selectedConcents]);
 
-  // Hàm load thêm sản phẩm
-  const loadMoreProducts = useCallback(() => {
-    if (isLoadingMore || !hasMore) return;
-
-    setIsLoadingMore(true);
-    fetchProducts(currentPage + 1, true);
-  }, [currentPage, hasMore, isLoadingMore]);
-
-  // Thiết lập Intersection Observer để theo dõi phần tử cuối cùng
+  // Khi currentPage đổi hoặc vừa được reset
   useEffect(() => {
-    if (loading) return;
+    setProducts([]);
+    fetchProducts(currentPage);
+  }, [currentPage]);
 
-    if (observer.current) observer.current.disconnect();
-
-    observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
-        loadMoreProducts();
-      }
-    });
-
-    if (lastProductElementRef.current) {
-      observer.current.observe(lastProductElementRef.current);
-    }
-
-    return () => {
-      if (observer.current) observer.current.disconnect();
-    };
-  }, [products, hasMore, isLoadingMore, loadMoreProducts, loading]);
-
-  // Loading skeleton
   const renderSkeletons = () => {
     return Array(8)
       .fill(0)
@@ -113,25 +74,41 @@ export default function ProductList() {
               <div className="h-0.5 bg-gray-200 flex-1"></div>
             </div>
             <div className="bg-gray-200 h-8 w-3/4 mt-2 rounded"></div>
-            <div className="w-16 h-0.5 bg-gray-200 my-2"></div>
-            <div className="bg-gray-200 w-full h-[150px] rounded-sm mt-2"></div>
           </div>
         </div>
       ));
   };
 
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages && page !== currentPage) {
+      setCurrentPage(page);
+    }
+  };
+
+  const getPaginationNumbers = (current, total) => {
+    const pages = [];
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (current > 4) pages.push("...");
+      const start = Math.max(2, current - 1);
+      const end = Math.min(total - 1, current + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (current < total - 3) pages.push("...");
+      pages.push(total);
+    }
+    return pages;
+  };
+
   return (
-    <div className="flex flex-col min-h-screen">
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-24 w-full items-center justify-around px-20 flex-grow">
+    <div className="flex flex-col min-h-screen mt-10">
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full items-center justify-around px-20 flex-grow">
         {loading && products.length === 0 ? (
           renderSkeletons()
         ) : products.length > 0 ? (
           products.map((product, index) => (
-            <div
-              key={`${product.slug}-${index}`}
-              className="p-2"
-              ref={index === products.length - 1 ? lastProductElementRef : null}
-            >
+            <div key={`${product.slug}-${index}`} className="p-2">
               <Product product={product} imageSize="h-[300px]" />
             </div>
           ))
@@ -145,18 +122,44 @@ export default function ProductList() {
         )}
       </section>
 
-      {/* Loading indicator khi đang tải thêm sản phẩm */}
-      {isLoadingMore && (
-        <div className="flex justify-center my-10">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
-        </div>
-      )}
+      {/* Phân trang */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 text-sm flex-wrap my-10">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 border rounded disabled:opacity-50"
+          >
+            Trước
+          </button>
 
-      {/* Hiển thị thông tin số sản phẩm đã tải */}
-      {!loading && products.length > 0 && (
-        <div className="text-center text-sm text-gray-600 mb-6">
-          Hiển thị {products.length} / {totalProducts} sản phẩm
-          {hasMore && " | Cuộn xuống để xem thêm"}
+          {getPaginationNumbers(currentPage, totalPages).map((page, index) =>
+            page === "..." ? (
+              <span key={`dots-${index}`} className="px-3 py-2">
+                ...
+              </span>
+            ) : (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`px-4 py-2 border rounded ${
+                  currentPage === page
+                    ? "bg-black text-white"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                {page}
+              </button>
+            )
+          )}
+
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 border rounded disabled:opacity-50"
+          >
+            Sau
+          </button>
         </div>
       )}
     </div>

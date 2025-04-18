@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Button from "../components/ui/Button";
 
@@ -10,6 +10,7 @@ import { Carousel, ConfigProvider } from "antd";
 import productData from "@/data/productData";
 import blogData from "@/data/blogData";
 import Product from "@/components/shared/Product";
+import api from "@/constants/apiURL";
 
 const introItems = [
   {
@@ -53,7 +54,34 @@ export default function Home() {
     });
   };
 
-  const [newestProduct, setNewestProduct] = useState(productData);
+  const [newestProduct, setNewestProduct] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchNewestProduct = async () => {
+      try {
+        setIsLoading(true);
+        const res = await api.get("/product-list?latest=true");
+
+        const data = res.data.products;
+
+        if (data) {
+          setNewestProduct(data); // Set sản phẩm mới nhất
+        } else {
+          console.log("Không có sản phẩm nào được trả về.");
+        }
+      } catch (err) {
+        console.error("Lỗi khi lấy sản phẩm:", err);
+        setError("Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchNewestProduct();
+  }, []);
+
+  console.log(newestProduct);
 
   const [blogPost, setBlogPost] = useState(blogData);
 

@@ -374,9 +374,10 @@ export default function DetailProduct() {
             <hr className="flex-grow border-t-[1px] border-black" />
           </div>
 
-          <div className="text-base leading-10 h-full">
-            {detailProduct.description}
-          </div>
+          <div
+            className="text-base leading-10 h-full"
+            dangerouslySetInnerHTML={{ __html: detailProduct.description }}
+          ></div>
         </div>
         <div className="w-1/2 h-[500px] sticky top-40 bg-red-300">
           <Image
