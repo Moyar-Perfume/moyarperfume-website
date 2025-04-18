@@ -6,7 +6,7 @@ import axios from "axios";
 // });
 
 const api = axios.create({
-  baseURL: "http://website-phi-five-69.vercel.app/api",
+  baseURL: "https://website-phi-five-69.vercel.app/api",
   withCredentials: true, // ⚠️ Cần thiết để nhận cookie từ server
 });
 
