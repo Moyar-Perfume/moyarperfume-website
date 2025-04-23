@@ -2,38 +2,52 @@ import { NextResponse } from "next/server";
 
 import cloudinary from "@/libs/cloudinary";
 
-export async function POST(request) {
-  try {
-    const data = await request.json();
-    const { file, slug, typeNumber } = data;
+// export async function POST(request) {
+//   try {
+//     const data = await request.json();
+//     const { file, slug, typeNumber, _id } = data;
 
-    if (!file) {
-      return NextResponse.json(
-        { error: "Lỗi dữ liệu", details: "Không tìm thấy file" },
-        { status: 400 }
-      );
-    }
+//     if (!file) {
+//       return NextResponse.json(
+//         { error: "Lỗi dữ liệu", details: "Không tìm thấy file" },
+//         { status: 400 }
+//       );
+//     }
 
-    // Sử dụng typeNumber từ request hoặc mặc định là 1
-    const imageNumber = typeNumber || 1;
-    console.log(`Using image number ${imageNumber} for slug: ${slug}`);
+//     // Sử dụng typeNumber từ request hoặc mặc định là 1
+//     const imageNumber = typeNumber || 1;
+//     console.log(`Using image number ${imageNumber} for slug: ${slug}`);
 
-    // Upload to Cloudinary
-    const uploadResponse = await cloudinary.v2.uploader.upload(file, {
-      folder: `products/${slug}`,
-      public_id: slug ? `${slug}-${imageNumber}` : `product-${imageNumber}`,
-      overwrite: true,
-    });
+//     let width = 500;
+//     let height = 500;
 
-    return NextResponse.json(uploadResponse.secure_url, { status: 201 });
-  } catch (error) {
-    console.error("Upload error:", error);
-    return NextResponse.json(
-      { error: "Lỗi server", details: error.message },
-      { status: 500 }
-    );
-  }
-}
+//     if (imageNumber === 2) {
+//       width = 900;
+//       height = 500;
+//     } else if (imageNumber === 3) {
+//       width = 800;
+//       height = 900;
+//     }
+
+//     // Upload to Cloudinary
+//     const uploadResponse = await cloudinary.v2.uploader.upload(file, {
+//       folder: `products/${_id}`,
+//       public_id: slug ? `${slug}-${imageNumber}` : `product-${imageNumber}`,
+//       overwrite: true,
+//       transformation: [
+//         { width, height, crop: "fit", gravity: "auto" }, // fill để resize và giữ khung ảnh
+//       ],
+//     });
+
+//     return NextResponse.json(uploadResponse.secure_url, { status: 201 });
+//   } catch (error) {
+//     console.error("Upload error:", error);
+//     return NextResponse.json(
+//       { error: "Lỗi server", details: error.message },
+//       { status: 500 }
+//     );
+//   }
+// }
 
 export async function DELETE(request) {
   try {

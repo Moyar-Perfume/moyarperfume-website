@@ -173,6 +173,9 @@ const ProductTagsCard = ({
           .split("_")
           .map((val) => parseInt(val) || 0);
         setKhuyendungValues({ xuan, ha, thu, dong });
+      } else {
+        // Nếu không có tag khuyendung nào thì reset về mặc định
+        setKhuyendungValues({ xuan: 0, ha: 0, thu: 0, dong: 0 });
       }
 
       // Xử lý thoigian tags
@@ -184,6 +187,9 @@ const ProductTagsCard = ({
           .split("_")
           .map((val) => parseInt(val) || 0);
         setThoigianValues({ ngay, dem });
+      } else {
+        // Nếu không có tag thời gian nào thì reset về mặc định
+        setThoigianValues({ ngay: 0, dem: 0 });
       }
     }
   }, [selectedTags]);

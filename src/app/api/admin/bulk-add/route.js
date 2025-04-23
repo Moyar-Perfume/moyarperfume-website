@@ -20,7 +20,7 @@ async function getBrandIdByName(name) {
       defaultBrand = await Brand.create({
         name: defaultBrandName,
         slug: slugify(defaultBrandName, { lower: true }),
-        logo: "/logo/logo_bg/logo_black.png",
+        logo: "",
         description: "Default brand for products without a specified brand",
       });
     }
@@ -37,7 +37,7 @@ async function getBrandIdByName(name) {
     brand = await Brand.create({
       name: brandName,
       slug: brandSlug,
-      logo: "/logo/logo_bg/logo_black.png",
+      logo: "",
       description: "",
     });
   }

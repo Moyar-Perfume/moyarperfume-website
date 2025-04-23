@@ -1,62 +1,28 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import api from "@/constants/apiURL";
 
-export default function useBrands() {
+const useBrands = () => {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const getAllBrand = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get("/brands");
-      setBrands(response.data);
-      return response.data;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createBrand = async (brandData) => {
-    setLoading(true);
-    try {
-      const response = await api.post("/admin/manage-brand", brandData);
-      return response.data;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteBrand = async (id) => {
-    setLoading(true);
-    try {
-      const response = await api.delete(`/admin/manage-brand/${id}`);
-      return response.data;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    getAllBrand();
+    const fetchBrands = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get("/brands"); // Địa chỉ API của bạn
+        setBrands(response.data);
+      } catch (err) {
+        setError("Lỗi khi tải thương hiệu");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBrands();
   }, []);
 
-  return {
-    brands,
-    loading,
-    error,
-    createBrand,
-    getAllBrand,
-    deleteBrand,
-    setBrands,
-  };
-}
+  return { brands, loading, error };
+};
+
+export default useBrands;

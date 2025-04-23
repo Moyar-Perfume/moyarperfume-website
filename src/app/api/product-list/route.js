@@ -6,7 +6,7 @@ import "@/models/Brand"; // Import Brand model to ensure it's registered
 export async function GET(request) {
   await connectDB();
   try {
-    const url = new URL(request.url || "http://localhost");
+    const url = new URL(request.url);
     const searchParams = url.searchParams;
 
     const brandId = searchParams.get("brandId");
@@ -19,13 +19,10 @@ export async function GET(request) {
     const exclude = searchParams.get("exclude");
     const productId = searchParams.get("productId");
     const gioitinh = searchParams.get("gender");
-    const isAdmin = searchParams.get("admin") === "true";
     const search = searchParams.get("search") || "";
     const nongdo = searchParams.getAll("nongdo");
-
     const latest = searchParams.get("latest") === "true";
 
-    // Thêm các tham số lọc mới
     const minPrice = searchParams.get("minPrice")
       ? parseInt(searchParams.get("minPrice"))
       : null;
@@ -41,17 +38,12 @@ export async function GET(request) {
 
     let query = {};
 
-    // Nếu không phải từ trang admin thì chỉ lấy sản phẩm có available = true
-    if (!isAdmin) {
-      query.available = true;
-    }
+    query.available = true;
 
-    // Thêm điều kiện tìm kiếm theo tên sản phẩm
     if (search) {
-      query.name = { $regex: search, $options: "i" }; // Tìm kiếm không phân biệt chữ hoa/thường
+      query.name = { $regex: search, $options: "i" };
     }
 
-    // Lọc theo brand
     if (brandIds && brandIds.length > 0) {
       query.brandID = { $in: brandIds };
     } else if (brandId) {
@@ -67,14 +59,13 @@ export async function GET(request) {
     }
 
     if (gioitinh) {
-      query.tags = { $in: [`gioitinh_Nước Hoa ${gioitinh}`] }; // lọc theo tag giới tính
+      query.tags = { $in: [`gioitinh_Nước Hoa ${gioitinh}`] };
     }
 
     if (nongdo.length > 0) {
       query.tags = { $in: nongdo.map((val) => `nongdo_${val}`) };
     }
 
-    // Lọc theo giá
     if (minPrice !== null || maxPrice !== null) {
       query.price = {};
       if (minPrice !== null) {
@@ -85,21 +76,15 @@ export async function GET(request) {
       }
     }
 
-    // Tính toán skip cho phân trang
     const skip = (page - 1) * limit;
-
-    // Đếm tổng số sản phẩm phù hợp với query
     const totalProducts = await Product.countDocuments(query);
-
-    // Tính tổng số trang
     const totalPages = Math.ceil(totalProducts / limit);
 
-    // Lấy sản phẩm cho trang hiện tại
     const products = await Product.find(query)
       .populate("brandID")
       .skip(skip)
       .limit(limit)
-      .sort(latest ? { createdAt: -1 } : { createdAt: 1 }); // Sắp xếp theo thứ tự mới nhất nếu latest là true
+      .sort(latest ? { createdAt: -1 } : { createdAt: 1 });
 
     return NextResponse.json(
       {

@@ -136,7 +136,7 @@ const AddProductImagesCard = ({ form, onMainImageChange }) => {
 
   return (
     <>
-      <Card title="Hình ảnh sản phẩm" className="mb-6">
+      <Card title="Hình ảnh sản phẩm" className="mb-6 col-span-1">
         {/* Form field ẩn để lưu trữ tất cả hình ảnh */}
         <Form.Item name="images" hidden>
           <input type="hidden" />
@@ -147,7 +147,6 @@ const AddProductImagesCard = ({ form, onMainImageChange }) => {
           <Title level={5} className="mb-2">
             Hình ảnh sản phẩm chính <span className="text-red-500">*</span>
           </Title>
-          <div className="mb-1 text-gray-500 text-sm">Bắt buộc phải có</div>
 
           <Upload
             listType="picture-card"
@@ -170,7 +169,6 @@ const AddProductImagesCard = ({ form, onMainImageChange }) => {
           <Title level={5} className="mb-2">
             Hình ảnh mô tả <span className="text-red-500">*</span>
           </Title>
-          <div className="mb-1 text-gray-500 text-sm">Bắt buộc phải có</div>
 
           <Upload
             listType="picture-card"
@@ -193,7 +191,6 @@ const AddProductImagesCard = ({ form, onMainImageChange }) => {
           <Title level={5} className="mb-2">
             Hình ảnh đặc điểm <span className="text-red-500">*</span>
           </Title>
-          <div className="mb-1 text-gray-500 text-sm">Bắt buộc phải có</div>
 
           <Upload
             listType="picture-card"

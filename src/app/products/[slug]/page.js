@@ -196,6 +196,21 @@ export default function DetailProduct() {
     setSelectedVariant(variant);
   };
 
+  const scrollToMiddle = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const elementRect = element.getBoundingClientRect();
+      const absoluteElementTop = window.scrollY + elementRect.top;
+      const middle =
+        absoluteElementTop - window.innerHeight / 2 + element.offsetHeight / 2;
+
+      window.scrollTo({
+        top: middle,
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
     <main>
       <section className="bg-gradient-to-b from-floral to-white">
@@ -212,7 +227,33 @@ export default function DetailProduct() {
         </div>
 
         <div className="flex w-full px-14 gap-32">
-          <div className="w-1/2 flex items-center justify-center ">
+          <div className="w-1/2 flex items-center justify-center relative">
+            <div className="absolute bottom-4 left-12 z-10 flex flex-col gap-1 text-sm">
+              <span
+                onClick={() => scrollToMiddle("describe")}
+                className=" cursor-pointer hover:underline transition-transform duration-500"
+              >
+                Describe
+              </span>
+              <span
+                onClick={() => scrollToMiddle("characteristic")}
+                className=" cursor-pointer hover:underline"
+              >
+                Characteristic
+              </span>
+              <span
+                onClick={() => scrollToMiddle("about")}
+                className=" cursor-pointer hover:underline"
+              >
+                About the Brand
+              </span>
+              <span
+                onClick={() => scrollToMiddle("explore")}
+                className=" cursor-pointer hover:underline"
+              >
+                Explore {brand.name} Fragrances
+              </span>
+            </div>
             <div
               className="w-[500px] h-[500px] relative"
               style={{
@@ -364,7 +405,7 @@ export default function DetailProduct() {
         </div>
       </section>
 
-      <section className="mt-12 flex gap-20 px-14">
+      <section className="mt-12 flex gap-20 px-14" id="describe">
         <div className="w-1/2 flex-col flex gap-8 px-14">
           <div className="flex items-center w-full">
             <hr className="flex-grow border-t-[1px] border-black" />
@@ -392,7 +433,7 @@ export default function DetailProduct() {
         </div>
       </section>
 
-      <section className="mt-24 flex gap-24 px-14">
+      <section className="mt-24 flex gap-24 px-14" id="characteristic">
         <div className="w-1/2 h-[900px] sticky top-12">
           <Image
             src={
@@ -795,7 +836,7 @@ export default function DetailProduct() {
         </div>
       </section>
 
-      <section className="mt-20 flex flex-col px-20">
+      <section className="mt-20 flex flex-col px-20" id="about">
         <div className="flex items-center w-full">
           <hr className="flex-grow border-t-[1px] border-black" />
           <span className="px-6 whitespace-nowrap text-2xl font-gotu">
@@ -871,14 +912,15 @@ export default function DetailProduct() {
           </div>
         </div>
       </section>
-      <section className="w-full mt-20 flex flex-col px-20">
+      <section className="w-full mt-20 flex flex-col px-20" id="explore">
         <div className="flex justify-between w-full items-center">
           <div className="text-xl font-medium">Belive in Miracle?</div>
           <Button variant="inverse">See all Fragrances</Button>
         </div>
-        <div className=" font-gotu w-full text-4xl items-center justify-center flex py-12">
-          Fragrance House
-        </div>
+        <p className="font-gotu w-full text-4xl flex items-center justify-center py-12 leading-snug tracking-wide">
+          Explore {brand.name} Fragrances
+        </p>
+
         <RelatedProducts
           brandId={brand._id}
           excludeSlug={slug}

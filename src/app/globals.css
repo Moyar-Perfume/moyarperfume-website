@@ -98,7 +98,12 @@ body {
 }
 
 .ql-container {
-  font-size: 20px !important;
+  font-size: 13px !important;
+}
+
+.ql-editor {
+  max-height: 300px !important;
+  overflow-y: auto !important;
 }
 
 @layer utilities {

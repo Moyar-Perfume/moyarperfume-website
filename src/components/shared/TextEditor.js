@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import { useState } from "react";
 import "react-quill/dist/quill.snow.css";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
@@ -7,7 +6,6 @@ const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 export default function TextEditor({ value, onChange, className, disabled }) {
   const modules = {
     toolbar: [
-      [{ header: [1, 2, 3, false] }], // Tiêu đề
       ["bold", "italic", "underline", "strike"], // In đậm, in nghiêng, gạch chân, gạch ngang
       [{ list: "ordered" }, { list: "bullet" }], // Danh sách số, danh sách chấm
       [{ script: "sub" }, { script: "super" }], // Chỉ số dưới, chỉ số trên
@@ -22,7 +20,6 @@ export default function TextEditor({ value, onChange, className, disabled }) {
   };
 
   const formats = [
-    "header",
     "bold",
     "italic",
     "underline",

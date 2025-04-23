@@ -2,284 +2,60 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Modal, message } from "antd";
-import api from "@/constants/apiURL";
-import useBrands from "@/hooks/useBrands";
+import {
+  Button,
+  Modal,
+  Pagination,
+  Spin,
+  Table,
+  message,
+  Popconfirm,
+} from "antd";
+import Image from "next/image";
+import { formatDate } from "@/utils/formatter";
+import useManageBrands from "@/hooks/admin/useManageBrands";
 
 export default function ManageBrand() {
   const router = useRouter();
   const [filteredBrands, setFilteredBrands] = useState([]);
-  const [searchText, setSearchText] = useState("");
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
-
-  // Phân trang
-  const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const itemsPerPage = 20;
 
   // Thêm state trong component ManageBrand
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [brandToDelete, setBrandToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const {
-    getAllBrand,
-    brands,
-    setBrands,
-    loading: GetAllBrandLoading,
-    deleteBrand,
-  } = useBrands();
+  const { brands, loading, error, pagination, getAllBrand, deleteBrand } =
+    useManageBrands();
 
-  // Fetch dữ liệu từ API
-  const fetchBrands = async () => {
-    setLoading(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchText, setSearchText] = useState("");
+
+  const fetchData = (page = 1, limitVal = 20, search = searchText) => {
+    setCurrentPage(page);
+    getAllBrand(page, limitVal, search);
+  };
+
+  const handleSearch = () => {
+    fetchData(1);
+  };
+
+  const handleDelete = async (id) => {
     try {
-      const brandData = await getAllBrand();
-
-      const formattedBrands = brandData.map((brand) => ({
-        id: brand._id,
-        name: brand.name,
-        slug: brand.slug,
-        logo: brand.logo,
-        description: brand.description,
-        updatedAt: brand.updatedAt,
-      }));
-
-      setBrands(formattedBrands);
-
-      // Áp dụng filter nếu có
-      if (searchText) {
-        const filtered = formattedBrands.filter((brand) =>
-          brand.name.toLowerCase().includes(searchText.toLowerCase())
-        );
-        setFilteredBrands(filtered);
-      } else {
-        setFilteredBrands(formattedBrands);
-      }
-
-      // Tính toán số trang
-      setTotalPages(Math.ceil(formattedBrands.length / itemsPerPage));
-    } catch (error) {
-      console.error("Lỗi khi fetch brands:", error);
-      setBrands([]);
-      setFilteredBrands([]);
-    } finally {
-      setLoading(false);
+      await deleteBrand(id);
+      message.success("Đã xóa thành công");
+      fetchData(pagination.currentPage);
+    } catch {
+      message.error("Xóa thất bại");
     }
   };
 
-  // Gọi API khi component mount
   useEffect(() => {
-    fetchBrands();
+    fetchData();
   }, []);
-
-  // Xử lý filter khi searchText thay đổi
-  useEffect(() => {
-    if (brands.length > 0) {
-      if (searchText) {
-        const filtered = brands.filter((brand) =>
-          brand.name.toLowerCase().includes(searchText.toLowerCase())
-        );
-        setFilteredBrands(filtered);
-      } else {
-        setFilteredBrands(brands);
-      }
-
-      // Reset về trang 1 khi filter thay đổi
-      setCurrentPage(1);
-    }
-  }, [searchText, brands]);
-
-  // Xử lý sắp xếp
-  const requestSort = (key) => {
-    let direction = "ascending";
-
-    if (sortConfig.key === key && sortConfig.direction === "ascending") {
-      direction = "descending";
-    }
-
-    setSortConfig({ key, direction });
-
-    // Sắp xếp dữ liệu
-    const sortedData = [...filteredBrands].sort((a, b) => {
-      if (a[key] < b[key]) {
-        return direction === "ascending" ? -1 : 1;
-      }
-      if (a[key] > b[key]) {
-        return direction === "ascending" ? 1 : -1;
-      }
-      return 0;
-    });
-
-    setFilteredBrands(sortedData);
-  };
-
-  // Hàm định dạng ngày
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-
-    const date = new Date(dateString);
-
-    // Kiểm tra nếu ngày không hợp lệ
-    if (isNaN(date.getTime())) return "Invalid date";
-
-    // Format: DD/MM/YYYY HH:MM
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, "0");
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
-  };
 
   // Xử lý thêm brand mới
   const navigateToAddBrand = () => {
     router.push("/admin/manage-brand/add-brand");
-  };
-
-  // Lấy dữ liệu cho trang hiện tại
-  const getCurrentPageData = () => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredBrands.slice(startIndex, endIndex);
-  };
-
-  // Xử lý chuyển trang
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  // Icon sắp xếp
-  const getSortIcon = (key) => {
-    if (sortConfig.key !== key) {
-      return <span className="ml-1">⇅</span>;
-    }
-
-    return sortConfig.direction === "ascending" ? (
-      <span className="ml-1">↑</span>
-    ) : (
-      <span className="ml-1">↓</span>
-    );
-  };
-
-  // Tạo các nút phân trang
-  const renderPaginationButtons = () => {
-    const buttons = [];
-
-    // Nút Trước
-    buttons.push(
-      <button
-        key="prev"
-        className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
-          currentPage === 1
-            ? "text-gray-300 cursor-not-allowed"
-            : "text-gray-500 hover:bg-gray-50"
-        }`}
-        onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        Trước
-      </button>
-    );
-
-    // Hiển thị tối đa 5 nút trang
-    const maxPagesToShow = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
-    if (endPage - startPage + 1 < maxPagesToShow) {
-      startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    }
-
-    // Tạo các nút số trang
-    for (let i = startPage; i <= endPage; i++) {
-      buttons.push(
-        <button
-          key={i}
-          className={`relative inline-flex items-center px-4 py-2 border ${
-            currentPage === i
-              ? "bg-blue-50 border-blue-500 text-blue-600 z-10"
-              : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-          } text-sm font-medium`}
-          onClick={() => handlePageChange(i)}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    // Nút Sau
-    buttons.push(
-      <button
-        key="next"
-        className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
-          currentPage === totalPages
-            ? "text-gray-300 cursor-not-allowed"
-            : "text-gray-500 hover:bg-gray-50"
-        }`}
-        onClick={() =>
-          currentPage < totalPages && handlePageChange(currentPage + 1)
-        }
-        disabled={currentPage === totalPages}
-      >
-        Sau
-      </button>
-    );
-
-    return buttons;
-  };
-
-  // Dữ liệu trang hiện tại
-  const currentPageData = getCurrentPageData();
-
-  // Thêm hàm xử lý xóa thương hiệu
-  const handleDeleteBrand = async () => {
-    if (!brandToDelete) return;
-
-    setDeleteLoading(true);
-    try {
-      // Cập nhật danh sách thương hiệu sau khi xóa
-      await deleteBrand(brandToDelete.id);
-
-      setBrands(brands.filter((brand) => brand.id !== brandToDelete.id));
-      setFilteredBrands(
-        filteredBrands.filter((brand) => brand.id !== brandToDelete.id)
-      );
-
-      // Cập nhật số trang nếu cần
-      const newTotalPages = Math.ceil(
-        (filteredBrands.length - 1) / itemsPerPage
-      );
-      setTotalPages(newTotalPages);
-
-      // Nếu trang hiện tại lớn hơn tổng số trang mới, quay về trang cuối cùng
-      if (currentPage > newTotalPages && newTotalPages > 0) {
-        setCurrentPage(newTotalPages);
-      }
-
-      message.success(`Đã xóa thương hiệu "${brandToDelete.name}" thành công!`);
-    } catch (error) {
-      console.error("Lỗi khi xóa thương hiệu:", error);
-      message.error("Có lỗi xảy ra khi xóa thương hiệu!");
-    } finally {
-      setDeleteLoading(false);
-      setDeleteModalVisible(false);
-      setBrandToDelete(null);
-    }
-  };
-
-  // Hàm mở modal xác nhận xóa
-  const showDeleteConfirm = (brand) => {
-    setBrandToDelete(brand);
-    setDeleteModalVisible(true);
-  };
-
-  // Hàm đóng modal xác nhận
-  const handleCancelDelete = () => {
-    setDeleteModalVisible(false);
-    setBrandToDelete(null);
   };
 
   return (
@@ -291,32 +67,6 @@ export default function ManageBrand() {
         </h1>
 
         <div className="flex space-x-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Tìm kiếm thương hiệu..."
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              className="text-sm pl-10 pr-4 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <div className="absolute left-3 top-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-                />
-              </svg>
-            </div>
-          </div>
-
           <Button
             type="primary"
             onClick={navigateToAddBrand}
@@ -325,6 +75,72 @@ export default function ManageBrand() {
             Thêm thương hiệu
           </Button>
         </div>
+      </div>
+
+      <div className="flex w-full gap-4 pb-4">
+        <div className="relative flex w-full">
+          <input
+            type="text"
+            placeholder="Tìm kiếm thương hiệu..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)} // Cập nhật text khi người dùng nhập
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch(); // Gọi hàm tìm kiếm khi nhấn Enter
+              }
+            }}
+            className="flex w-full text-sm pl-10 pr-10 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+          <div className="absolute left-3 top-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+              />
+            </svg>
+          </div>
+          {/* Nút xóa */}
+          {searchText && (
+            <button
+              onClick={() => {
+                setSearchText(""); // Xóa giá trị input
+                fetchData(1, 20, ""); // Gọi lại fetchData mà không có tìm kiếm
+              }}
+              className="absolute right-2 top-2 text-gray-400 hover:text-gray-600"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-5 h-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        <Button
+          type="primary"
+          onClick={handleSearch} // Gọi hàm search khi bấm nút
+          className="bg-blue-500 hover:bg-blue-600 flex"
+        >
+          Tìm kiếm
+        </Button>
       </div>
 
       {/* Bảng dữ liệu */}
@@ -338,23 +154,14 @@ export default function ManageBrand() {
         <table className="min-w-full bg-white border border-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th
-                className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider cursor-pointer"
-                onClick={() => requestSort("id")}
-              >
-                ID
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider ">
+                Logo
               </th>
-              <th
-                className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider cursor-pointer"
-                onClick={() => requestSort("name")}
-              >
-                Tên thương hiệu {getSortIcon("name")}
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider ">
+                Tên thương hiệu
               </th>
-              <th
-                className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider cursor-pointer"
-                onClick={() => requestSort("updatedAt")}
-              >
-                Ngày chỉnh sửa {getSortIcon("updatedAt")}
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider ">
+                Ngày chỉnh sửa
               </th>
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
                 Thao tác
@@ -362,11 +169,17 @@ export default function ManageBrand() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {currentPageData.length > 0
-              ? currentPageData.map((brand) => (
+            {brands.length > 0
+              ? brands.map((brand) => (
                   <tr key={brand.slug} className="hover:bg-gray-50">
                     <td className="px-6 whitespace-nowrap text-xs font-medium text-gray-900">
-                      {brand.id}
+                      <div className=" w-[50px] h-[50px] relative">
+                        <Image
+                          src={brand.logo || "/logo/logo_bg/logo_black.png"}
+                          fill
+                          alt={brand.slug}
+                        />
+                      </div>
                     </td>
                     <td className="px-6 whitespace-nowrap text-xs text-gray-500">
                       {brand.name}
@@ -387,7 +200,7 @@ export default function ManageBrand() {
                         </button>
                         <button
                           className="text-red-600 hover:text-red-900"
-                          onClick={() => showDeleteConfirm(brand)}
+                          onClick={() => handleDelete(brand.id)}
                         >
                           Xóa
                         </button>
@@ -409,26 +222,70 @@ export default function ManageBrand() {
         </table>
       </div>
 
-      {/* Thông tin phân trang */}
-      <div className="mt-2 text-sm text-gray-600">
-        Hiển thị {currentPageData.length} / {filteredBrands.length} thương hiệu
-        | Trang {currentPage} / {totalPages}
+      <div className="w-full flex items-center justify-end">
+        {/* Phân trang - luôn ở dưới cùng */}
+        {pagination.totalPages > 1 && (
+          <div className="flex justify-end gap-2 mt-4 text-sm">
+            <button
+              onClick={() => fetchData(1)}
+              disabled={currentPage === 1}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Trang đầu
+            </button>
+
+            <button
+              onClick={() => fetchData(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Trước
+            </button>
+
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+              .filter(
+                (page) =>
+                  page === 1 ||
+                  page === pagination.totalPages ||
+                  Math.abs(page - currentPage) <= 2
+              )
+              .map((page, idx, arr) => (
+                <React.Fragment key={page}>
+                  {idx > 0 && page - arr[idx - 1] > 1 && (
+                    <span className="px-2 flex items-center">...</span>
+                  )}
+                  <button
+                    onClick={() => fetchData(page)}
+                    className={`w-10 h-10 border rounded ${
+                      currentPage === page ? "bg-black text-white" : ""
+                    }`}
+                  >
+                    {page}
+                  </button>
+                </React.Fragment>
+              ))}
+
+            <button
+              onClick={() => fetchData(currentPage + 1)}
+              disabled={currentPage === pagination.totalPages}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Sau
+            </button>
+
+            <button
+              onClick={() => fetchData(pagination.totalPages)}
+              disabled={currentPage === pagination.totalPages}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Trang cuối
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Phân trang - luôn ở dưới cùng */}
-      {totalPages > 1 && (
-        <div className="mt-auto flex justify-end border-gray-200">
-          <nav
-            className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-            aria-label="Pagination"
-          >
-            {renderPaginationButtons()}
-          </nav>
-        </div>
-      )}
-
       {/* Modal xác nhận xóa */}
-      <Modal
+      {/* <Modal
         title="Xác nhận xóa"
         open={deleteModalVisible}
         onCancel={handleCancelDelete}
@@ -455,7 +312,7 @@ export default function ManageBrand() {
             Hành động này không thể hoàn tác.
           </p>
         )}
-      </Modal>
+      </Modal> */}
     </div>
   );
 }

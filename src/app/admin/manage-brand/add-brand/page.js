@@ -5,7 +5,8 @@ import { useState } from "react";
 import { Image, Upload, Card, Form, Input, Button, message, Spin } from "antd";
 import { PlusOutlined, LoadingOutlined } from "@ant-design/icons";
 import slugify from "slugify";
-import useBrands from "@/hooks/useBrands";
+import useBrands from "@/hooks/admin/useManageBrands";
+import { useRouter } from "next/navigation";
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -16,6 +17,8 @@ const getBase64 = (file) =>
   });
 
 export default function AddBrand() {
+  const route = useRouter();
+
   const [brandName, setBrandName] = useState("");
   const [description, setDescription] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -26,30 +29,32 @@ export default function AddBrand() {
   const { brands, loading: loadingAddBrand, error, createBrand } = useBrands();
 
   const handleCreateBrand = async () => {
-    if (!brandName || !fileList.length) {
-      message.error("Vui lòng nhập tên và chọn ảnh!");
+    if (!brandName) {
+      message.error("Vui lòng nhập tên thương hiệu!");
       return;
     }
 
-    const file = await getBase64(fileList[0].originFileObj);
+    const file = fileList.length
+      ? await getBase64(fileList[0].originFileObj)
+      : null;
 
     const brandsData = {
       name: brandName,
       logo: file,
-      description: description,
+      description,
       slug: slugify(brandName, { lower: true }),
     };
+
     try {
       await createBrand(brandsData);
 
-      await message.success("Thêm thương hiệu thành công!");
-
+      route.push("/admin/manage-brand");
       setBrandName("");
       setDescription("");
       setFileList([]);
-      form.resetFields();
+      await message.success("Thêm thương hiệu thành công!");
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
+      if (error.response && error.response.data?.error) {
         message.error(error.response.data.error);
       } else {
         message.error("Có lỗi xảy ra khi thêm thương hiệu!");
@@ -121,7 +126,6 @@ export default function AddBrand() {
 
               <Form.Item
                 label="Logo thương hiệu"
-                required
                 tooltip="Tải lên logo của thương hiệu"
               >
                 <Upload

@@ -35,41 +35,9 @@ export default function AddProduct() {
       // Lấy dữ liệu từ form
       const values = await form.validateFields();
 
-      // Kiểm tra có đủ hình ảnh không
-      if (!values.images || values.images.length < 3) {
-        message.error(
-          "Bạn phải tải lên đủ 3 loại hình ảnh: chính, mô tả, và đặc điểm"
-        );
-        setLoading(false);
-        return;
-      }
-
-      // Kiểm tra cụ thể từng loại hình ảnh
-      const hasMainImage = values.images.some((img) => img.type === "main");
-      const hasDescImage = values.images.some(
-        (img) => img.type === "description"
-      );
-      const hasFeatureImage = values.images.some(
-        (img) => img.type === "feature"
-      );
-
-      if (!hasMainImage || !hasDescImage || !hasFeatureImage) {
-        let errorMsg = "Thiếu hình ảnh bắt buộc: ";
-
-        if (!hasMainImage) errorMsg += "hình ảnh chính, ";
-        if (!hasDescImage) errorMsg += "hình ảnh mô tả, ";
-        if (!hasFeatureImage) errorMsg += "hình ảnh đặc điểm, ";
-
-        errorMsg = errorMsg.slice(0, -2); // Loại bỏ dấu phẩy và khoảng trắng cuối cùng
-        message.error(errorMsg);
-        setLoading(false);
-        return;
-      }
-
       const gioitinh =
         values.tags.find((tag) => tag.startsWith("gioitinh_"))?.split("_")[1] ||
         "";
-
       const nongdoTag =
         values.tags.find((tag) => tag.startsWith("nongdo_")) || "";
       const nongdoMatch = nongdoTag.match(/\((.*?)\)/);
@@ -91,28 +59,10 @@ export default function AddProduct() {
         images: [],
       };
 
-      // Xử lý hình ảnh
       if (values.images && values.images.length > 0) {
         try {
-          // Tạo mảng promises cho việc convert và upload
+          // Tạo mảng promises cho việc convert
           const uploadPromises = values.images.map(async (file) => {
-            // Kiểm tra nếu đã có URL cloudinary (hình ảnh hiện có từ server)
-            if (
-              typeof file === "object" &&
-              file.url &&
-              file.url.includes("cloudinary")
-            ) {
-              // Giữ nguyên hình ảnh hiện có
-              const typeNumber =
-                file.type === "main" ? 1 : file.type === "description" ? 2 : 3;
-              return {
-                url: file.url,
-                type: file.type || "main",
-                typeNumber: file.typeNumber || typeNumber, // Sử dụng typeNumber từ file hoặc tính toán từ type
-                _id: file._id, // Giữ nguyên _id nếu có
-              };
-            }
-
             // Lấy file object và type
             const fileObj = file.originFileObj;
             const fileType = file.type || "main";
@@ -124,45 +74,28 @@ export default function AddProduct() {
               return null;
             }
 
-            try {
-              // Convert file to base64
-              const base64 = await getBase64(fileObj);
+            // Convert file to base64
+            const base64 = await getBase64(fileObj);
 
-              // Upload dùng API
-              const uploadResponse = await api.post(
-                "/admin/manage-image/product-img",
-                {
-                  file: base64,
-                  slug: slug,
-                  typeNumber: typeNumber, // Truyền typeNumber vào request API
-                }
-              );
-
-              // Trả về đối tượng với URL và type
-              return {
-                url: uploadResponse.data,
-                type: fileType,
-                typeNumber: typeNumber, // Luôn dùng typeNumber đã tính toán
-              };
-            } catch (error) {
-              console.error(`Lỗi khi tải lên hình ảnh ${fileType}:`, error);
-              return null;
-            }
+            // Trả về đối tượng với base64 và type
+            return {
+              file: base64,
+              type: fileType,
+              typeNumber: typeNumber, // Luôn dùng typeNumber đã tính toán
+            };
           });
 
           // Chờ tất cả các promises hoàn thành
           const uploadedImages = await Promise.all(uploadPromises);
 
-          // Lọc ra các URL hợp lệ
+          // Lọc ra các đối tượng hợp lệ
           const validImages = uploadedImages.filter((img) => img !== null);
-
-          console.log("Valid images after upload:", validImages);
 
           productData.images = validImages;
         } catch (uploadError) {
-          console.error("Lỗi upload:", uploadError);
+          console.error("Lỗi xử lý hình ảnh:", uploadError);
           message.error(
-            "Có lỗi xảy ra khi tải lên hình ảnh: " + uploadError.message
+            "Có lỗi xảy ra khi xử lý hình ảnh: " + uploadError.message
           );
           setLoading(false);
           return;
@@ -226,7 +159,7 @@ export default function AddProduct() {
           </Form.Item>
 
           {/* Thông tin cơ bản và Hình ảnh */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             {/* Thông tin cơ bản */}
             <InfoCard form={form} />
 

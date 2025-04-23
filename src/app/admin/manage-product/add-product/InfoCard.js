@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
-import { Card, Form, Input, Select, Switch, message } from "antd";
+import React from "react";
+import { Card, Form, Input, Select, Switch } from "antd";
+import TextEditor from "@/components/shared/TextEditor";
 import useBrands from "@/hooks/useBrands";
 
-const { TextArea } = Input;
-
-const BasicInfoCard = ({ form }) => {
+const InfoCard = ({ form }) => {
   const { brands, loading, error } = useBrands();
 
   const brandOptions =
@@ -22,7 +21,7 @@ const BasicInfoCard = ({ form }) => {
   };
 
   return (
-    <Card title="Thông tin cơ bản">
+    <Card title="Thông tin cơ bản" className=" col-span-3">
       <Form.Item
         name="name"
         label="Tên sản phẩm"
@@ -33,7 +32,7 @@ const BasicInfoCard = ({ form }) => {
 
       <Form.Item
         name="brandID"
-        label="Thương hiệu của sản phẩm "
+        label="Thương hiệu của sản phẩm"
         rules={[
           {
             required: true,
@@ -49,8 +48,9 @@ const BasicInfoCard = ({ form }) => {
           onChange={handleBrandChange}
           showSearch
           optionFilterProp="label"
-          filterOption={(input, option) =>
-            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+          filterOption={
+            (input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase()) // Lọc các thương hiệu theo tên
           }
         />
       </Form.Item>
@@ -65,7 +65,7 @@ const BasicInfoCard = ({ form }) => {
           },
         ]}
       >
-        <TextArea
+        <TextEditor
           placeholder="Nhập mô tả sản phẩm"
           autoSize={{ minRows: 3, maxRows: 6 }}
         />
@@ -83,4 +83,4 @@ const BasicInfoCard = ({ form }) => {
   );
 };
 
-export default BasicInfoCard;
+export default InfoCard;

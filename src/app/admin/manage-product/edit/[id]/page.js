@@ -17,7 +17,7 @@ import { PlusOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import api from "@/constants/apiURL";
 import slugify from "slugify";
 import { getBase64 } from "@/utils/base64";
-import { useEditManageProduct } from "@/hooks/admin/useManageProduct";
+import { useEditManageProduct } from "@/hooks/admin/useEditManageProduct";
 import { useParams } from "next/navigation";
 
 // Các component con - nếu cần, bạn có thể import từ thư mục add-product
@@ -162,98 +162,80 @@ export default function EditProduct() {
         tags: values.tags,
         available: values.available,
         variants: values.variants || [],
-        images: values.images || [], // Giữ nguyên hình ảnh cũ nếu không có hình mới
+        images: values.images || [],
       };
 
-      // Xử lý hình ảnh mới (nếu có)
+      // // Xử lý hình ảnh mới (nếu có)
+      // if (values.images && values.images.length > 0) {
+      //   try {
+      //     // Upload lần lượt từng hình ảnh theo thứ tự đã sắp xếp
+      //     const imageResults = [];
+
+      //     if (imageResults.length === 0) {
+      //       throw new Error("Không thể tải lên bất kỳ hình ảnh nào");
+      //     }
+
+      //     // Cập nhật danh sách hình ảnh
+      //     productData.images = imageResults;
+      //   } catch (uploadError) {
+      //     console.error("Lỗi upload:", uploadError);
+      //     message.error(
+      //       "Có lỗi xảy ra khi tải lên hình ảnh: " +
+      //         (uploadError.response?.data?.details || uploadError.message)
+      //     );
+      //     return;
+      //   }
+      // }
+
+      // Gọi API cập nhật sản phẩm
+
+      console.log(values.images);
+
       if (values.images && values.images.length > 0) {
         try {
-          // Sắp xếp hình ảnh theo thứ tự main → description → feature
-          const sortedImages = [...values.images].sort((a, b) => {
-            const typeOrder = { main: 1, description: 2, feature: 3 };
-            return typeOrder[a.type || "main"] - typeOrder[b.type || "main"];
-          });
-
-          // Upload lần lượt từng hình ảnh theo thứ tự đã sắp xếp
-          const imageResults = [];
-
-          for (const file of sortedImages) {
-            // Nếu file đã có URL cloudinary (hình ảnh hiện có từ server)
-            if (
-              typeof file === "object" &&
-              file.url &&
-              file.url.includes("cloudinary")
-            ) {
-              // Xác định typeNumber dựa trên type
-              const typeNumber =
-                file.type === "main" ? 1 : file.type === "description" ? 2 : 3;
-
-              imageResults.push({
-                url: file.url,
-                type: file.type || "main",
-                typeNumber: typeNumber,
-                _id: file._id, // Giữ nguyên _id nếu có
-              });
-              continue;
-            }
-
-            // Nếu là file mới hoặc URL blob cần upload lại
-            const fileObj = file.originFileObj;
+          const uploadPromises = values.images.map(async (file) => {
+            const isNew = !!file.originFileObj;
             const fileType = file.type || "main";
-
-            // Xác định typeNumber dựa trên fileType
             const typeNumber =
               fileType === "main" ? 1 : fileType === "description" ? 2 : 3;
 
-            if (!fileObj) {
-              console.error("Missing originFileObj in file:", file);
-              continue;
-            }
-
-            try {
-              // Convert file to base64
-              const base64 = await getBase64(fileObj);
-
-              // Upload dùng API
-              const uploadResponse = await api.post(
-                "/admin/manage-image/product-img",
-                {
-                  file: base64,
-                  slug: slug,
-                  typeNumber: typeNumber, // Truyền typeNumber vào request API
-                }
-              );
-
-              // Thêm vào kết quả
-              imageResults.push({
-                url: uploadResponse.data,
+            if (isNew) {
+              const base64 = await getBase64(file.originFileObj);
+              return {
+                file: base64,
                 type: fileType,
-                typeNumber: typeNumber,
-              });
-            } catch (error) {
-              console.error(`Lỗi khi tải lên hình ảnh ${fileType}:`, error);
+                typeNumber,
+              };
+            } else {
+              // Trường hợp ảnh cũ, chỉ giữ lại thông tin đã có
+              return {
+                url: file.url,
+                type: fileType,
+                typeNumber,
+              };
             }
-          }
+          });
 
-          if (imageResults.length === 0) {
-            throw new Error("Không thể tải lên bất kỳ hình ảnh nào");
-          }
+          const processedImages = await Promise.all(uploadPromises);
+          const validImages = processedImages.filter((img) => img !== null);
 
-          // Cập nhật danh sách hình ảnh
-          productData.images = imageResults;
-        } catch (uploadError) {
-          console.error("Lỗi upload:", uploadError);
-          message.error(
-            "Có lỗi xảy ra khi tải lên hình ảnh: " +
-              (uploadError.response?.data?.details || uploadError.message)
+          productData.images = validImages;
+
+          console.log(
+            "📦 Hình ảnh sau khi xử lý (ready to upload/send):",
+            validImages
           );
+        } catch (uploadError) {
+          console.error("Lỗi xử lý hình ảnh:", uploadError);
+          message.error(
+            "Có lỗi xảy ra khi xử lý hình ảnh: " + uploadError.message
+          );
+          setLoading(false);
           return;
         }
       }
-
-      // Gọi API cập nhật sản phẩm
       const updateResponse = await api.put(
-        "/admin/manage-product",
+        `/admin/manage-product/${id}`,
         productData
       );
 
@@ -292,7 +274,18 @@ export default function EditProduct() {
     <div className="bg-white shadow-md p-6 w-full min-h-[calc(100vh-70px)]">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Chỉnh sửa sản phẩm</h1>
-        <Button onClick={handleBack}>Quay lại</Button>
+
+        <div className="flex justify-end gap-2">
+          <Button
+            type="primary"
+            onClick={handleSubmit}
+            loading={loading}
+            className="bg-blue-500 hover:bg-blue-600"
+          >
+            Cập nhật sản phẩm
+          </Button>
+          <Button onClick={handleBack}>Quay lại</Button>
+        </div>
       </div>
 
       <div className="product-form">
@@ -307,7 +300,7 @@ export default function EditProduct() {
           }}
         >
           {/* Thông tin cơ bản và Hình ảnh */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             {/* Thông tin cơ bản */}
             <InfoCard form={form} />
 
@@ -332,6 +325,14 @@ export default function EditProduct() {
               }}
             />
           </div>
+
+          {/* Tags sản phẩm */}
+          <ProductTagsCard
+            form={form}
+            selectedTags={selectedTags}
+            setSelectedTags={setSelectedTags}
+            mainImageUrl={mainImage}
+          />
 
           {/* Biến thể sản phẩm */}
           <Card title="Biến thể sản phẩm" className="mb-10">
@@ -429,14 +430,6 @@ export default function EditProduct() {
               )}
             </Form.List>
           </Card>
-
-          {/* Tags sản phẩm */}
-          <ProductTagsCard
-            form={form}
-            selectedTags={selectedTags}
-            setSelectedTags={setSelectedTags}
-            mainImageUrl={mainImage}
-          />
         </Form>
 
         {/* Nút submit - tách khỏi Form để tránh auto submit */}

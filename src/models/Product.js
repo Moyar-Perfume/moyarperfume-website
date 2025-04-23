@@ -10,13 +10,13 @@ const VariantSchema = new mongoose.Schema({
 // Define image schema for more structured image data
 const ImageSchema = new mongoose.Schema({
   url: { type: String, required: true },
-  type: { type: String, default: "main" }, // main, description, or feature
+  type: { type: String, default: "main" },
 });
 
 const ProductSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    images: [ImageSchema], // Changed from simple array to array of image objects
+    images: [ImageSchema],
     slug: { type: String, required: true, unique: true },
     tags: { type: [String] },
     available: { type: Boolean, default: true },

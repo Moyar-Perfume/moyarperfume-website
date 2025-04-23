@@ -1,29 +1,54 @@
 import { useEffect, useState } from "react";
 import api from "@/constants/apiURL";
 
-export function useEditManageProduct({ id }) {
-  const [editProduct, setEditProduct] = useState(null);
+export function useManageProduct(page = 1, limit = 10, searchText = "") {
+  const [productList, setProductList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    currentPage: page,
+    totalPages: 1,
+    totalProducts: 0,
+    hasMore: false,
+  });
+
+  const buildUrl = () => {
+    let url = `/product-list?admin=true&page=${page}&limit=${limit}`;
+    if (searchText) {
+      url += `&search=${encodeURIComponent(searchText)}`;
+    }
+    return url;
+  };
+
+  const fetchProductList = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get(buildUrl());
+      if (response.status === 200) {
+        const { currentPage, totalPages, totalProducts } =
+          response.data.pagination;
+        setProductList(response.data.products || []);
+        setPagination({
+          currentPage,
+          totalPages,
+          totalProducts,
+          hasMore: currentPage < totalPages,
+        });
+      } else {
+        setError("Không thể lấy danh sách sản phẩm");
+      }
+    } catch (err) {
+      setError(
+        err?.response?.data?.message || err.message || "Lỗi khi tải sản phẩm"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchEditProduct = async () => {
-      try {
-        const response = await api.get(`/admin/manage-product/${id}`);
-        setEditProduct(response.data);
-        console.log("Loaded product data:", response.data);
-      } catch (err) {
-        console.error("Error loading product:", err);
-        setError(err.message || "Không thể tải thông tin sản phẩm");
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchProductList();
+  }, [page, limit, searchText]);
 
-    if (id) {
-      fetchEditProduct();
-    }
-  }, [id]);
-
-  return { editProduct, loading, error };
+  return { productList, loading, error, pagination, refetch: fetchProductList };
 }

@@ -10,14 +10,4 @@ const api = axios.create({
   withCredentials: true, // ⚠️ Cần thiết để nhận cookie từ server
 });
 
-// const api = axios.create({
-//   baseURL: "https://moyarperfume.netlify.app",
-//   withCredentials: true, // ⚠️ Cần thiết để nhận cookie từ server
-// });
-
-// const api = axios.create({
-//   baseURL: "https://website-silk-seven-39.vercel.app",
-//   withCredentials: true, // ⚠️ Cần thiết để nhận cookie từ server
-// });
-
 export default api;
