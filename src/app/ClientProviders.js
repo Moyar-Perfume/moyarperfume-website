@@ -2,7 +2,7 @@
 
 import { SessionProvider } from "next-auth/react";
 import { CartProvider } from "@/contexts/CartContext";
-import RootClient from "./RootClient"; // bạn đã có sẵn
+import RootClient from "./RootClient";
 
 export default function ClientProviders({ children }) {
   return (
