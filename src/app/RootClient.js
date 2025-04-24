@@ -49,8 +49,13 @@ export default function RootClient({ children }) {
             </div>
           </div>
         ) : (
-          <div className="p-10 text-center text-red-500 font-semibold">
-            Không có quyền truy cập
+          <div className="flex w-full items-center justify-center flex-col">
+            <div className="p-10 text-center text-red-500 font-semibold">
+              Không có quyền truy cập
+            </div>
+            <a href="/admin/login" className="underline">
+              Đăng Nhập Ngay
+            </a>
           </div>
         )
       ) : (
