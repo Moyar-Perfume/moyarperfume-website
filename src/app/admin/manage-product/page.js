@@ -398,16 +398,12 @@ export default function ManageProduct() {
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap text-xs font-medium w-1/5 align-center">
                         <div className="grid items-start justify-start">
-                          <button
+                          <a
+                            href={`/admin/manage-product/edit/${product.id}`}
                             className="text-indigo-600 hover:text-indigo-900"
-                            onClick={() =>
-                              router.push(
-                                `/admin/manage-product/edit/${product.id}`
-                              )
-                            }
                           >
                             Sửa
-                          </button>
+                          </a>
                           <button
                             className="text-red-600 hover:text-red-900"
                             onClick={() => showDeleteConfirm(product)}

@@ -118,23 +118,23 @@ export async function PUT(req, { params }) {
       const base64Data = file;
       if (!base64Data) continue;
 
-      // Resize theo loại ảnh
-      let width = 500;
-      let height = 500;
-      if (typeNumber === 2) {
-        width = 900;
-        height = 500;
-      } else if (typeNumber === 3) {
-        width = 800;
-        height = 900;
-      }
+      // // Resize theo loại ảnh
+      // let width = 1200;
+      // let height = 1200;
+      // if (typeNumber === 2) {
+      //   width = 900;
+      //   height = 500;
+      // } else if (typeNumber === 3) {
+      //   width = 800;
+      //   height = 900;
+      // }
 
       // Upload lên Cloudinary
       const uploadRes = await cloudinary.v2.uploader.upload(base64Data, {
         folder: `products/${id}`,
         public_id: `${id}-${typeNumber}`,
-        overwrite: true,
-        transformation: [{ width, height, crop: "fill", gravity: "auto" }],
+        // overwrite: true,
+        // transformation: [{ width, height, crop: "fill", gravity: "auto" }],
       });
 
       uploadedImages.push({

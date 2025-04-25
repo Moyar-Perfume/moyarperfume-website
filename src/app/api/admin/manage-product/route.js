@@ -28,8 +28,8 @@ export async function POST(req) {
       const { file, type, typeNumber } = images[i];
 
       // Kích thước theo typeNumber
-      let width = 500;
-      let height = 500;
+      let width = 1024;
+      let height = 1024;
       if (typeNumber === 2) {
         width = 900;
         height = 500;
