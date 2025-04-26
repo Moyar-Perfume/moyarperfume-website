@@ -3,7 +3,7 @@ import { connectDB } from "@/libs/mongoDB";
 import Product from "@/models/Product";
 import cloudinary from "@/libs/cloudinary";
 
-export const config = {
+export const routeSegmentConfig = {
   api: {
     bodyParser: {
       sizeLimit: "20mb",
