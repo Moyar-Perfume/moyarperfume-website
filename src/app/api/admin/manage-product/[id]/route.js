@@ -3,6 +3,14 @@ import { connectDB } from "@/libs/mongoDB";
 import Product from "@/models/Product";
 import cloudinary from "@/libs/cloudinary";
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "20mb",
+    },
+  },
+};
+
 // Xử lý yêu cầu DELETE
 export async function DELETE(req, { params }) {
   try {
