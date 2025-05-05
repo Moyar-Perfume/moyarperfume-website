@@ -9,8 +9,8 @@ export async function POST(req) {
   }
 
   // ❗ Bạn xử lý gì đó ở đây (ghi log, cập nhật DB, v.v.)
-  console.log("📦 Webhook nhận được:", body.event);
-  console.log("📊 Data Webhook nhận được:", body.data);
+  console.log("📦 Webhook nhận được:", body.event, { status: 200 });
+  console.log("📊 Data Webhook nhận được:", body.data, { status: 200 });
 
   // ✅ Trả về HTTP status code 200
   return NextResponse.json({ message: "Webhook received" });
