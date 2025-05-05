@@ -136,7 +136,7 @@ const saveGroupedProductsToDB = async (grouped) => {
 };
 
 // ---------------------- Main Handler ----------------------
-export async function GET() {
+export async function POST() {
   try {
     await connectDB();
     console.log("🔌 Đã kết nối database.");
