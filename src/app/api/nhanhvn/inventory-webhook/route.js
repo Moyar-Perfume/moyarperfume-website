@@ -1,25 +1,28 @@
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
-  const body = await req.json();
+  let body;
 
-  // ✅ Check dữ liệu từ webhook gửi về
-  if (!body?.event || !body?.data) {
-    return NextResponse.json({ message: "Invalid payload" }, { status: 400 });
+  // ✅ Parse JSON an toàn
+  try {
+    body = await req.json();
+  } catch (error) {
+    console.error("❌ Lỗi parse JSON từ webhook:", error);
+    return NextResponse.json({ message: "Invalid JSON" });
   }
 
-  // ❗ Bạn xử lý gì đó ở đây (ghi log, cập nhật DB, v.v.)
-  console.log(
-    "📦 Webhook nhận được:",
-    { message: body.event },
-    { status: 200 }
-  );
-  console.log(
-    "📊 Data Webhook nhận được:",
-    { message: body.data },
-    { status: 200 }
-  );
+  const { event, data } = body;
 
-  // ✅ Trả về HTTP status code 200
+  // ✅ Kiểm tra dữ liệu cần thiết
+  if (!event || !data) {
+    console.warn("⚠️ Thiếu trường event hoặc data trong payload:", body);
+    return NextResponse.json({ message: "Missing fields" });
+  }
+
+  // ✅ In log ra console
+  console.log("📦 Webhook Event:", event);
+  console.log("📊 Webhook Data:", data);
+
+  // ✅ Trả về HTTP 200 theo yêu cầu
   return NextResponse.json({ message: "Webhook received" });
 }
