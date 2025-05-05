@@ -1,28 +1,17 @@
 import { NextResponse } from "next/server";
+import { connectDB } from "@/libs/mongoDB";
+import WebhookLog from "@/models/WebhookLog";
 
 export async function POST(req) {
-  let body;
-
-  // ✅ Parse JSON an toàn
   try {
-    body = await req.json();
+    await connectDB();
+    const data = await req.json();
+
+    await WebhookLog.create({ data });
+
+    return NextResponse.json({ message: "Webhook received" }, { status: 200 });
   } catch (error) {
-    console.error("❌ Lỗi parse JSON từ webhook:", error);
-    return NextResponse.json({ message: "Invalid JSON" });
+    console.error("❌ Webhook Error:", error.message);
+    return NextResponse.json({ message: "Error" }, { status: 500 });
   }
-
-  const { event, data } = body;
-
-  // ✅ Kiểm tra dữ liệu cần thiết
-  if (!event || !data) {
-    console.warn("⚠️ Thiếu trường event hoặc data trong payload:", body);
-    return NextResponse.json({ message: "Missing fields" });
-  }
-
-  // ✅ In log ra console
-  console.log("📦 Webhook Event:", event);
-  console.log("📊 Webhook Data:", data);
-
-  // ✅ Trả về HTTP 200 theo yêu cầu
-  return NextResponse.json({ message: "Webhook received" });
 }
