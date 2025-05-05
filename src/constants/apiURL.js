@@ -6,7 +6,7 @@ import axios from "axios";
 // });
 
 const api = axios.create({
-  baseURL: "https://moyarperfume.com/api",
+  baseURL: process.env.API_URL,
   withCredentials: true, // ⚠️ Cần thiết để nhận cookie từ server
 });
 
