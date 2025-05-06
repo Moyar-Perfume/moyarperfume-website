@@ -6,7 +6,7 @@ export async function POST(req) {
   try {
     await connectDB();
     const data = await req.json();
-
+    console.log("📥 Webhook Data:", data);
     await WebhookLog.create({ data });
 
     return NextResponse.json({ message: "Webhook received" }, { status: 200 });
