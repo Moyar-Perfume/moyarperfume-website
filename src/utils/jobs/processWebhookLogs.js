@@ -9,14 +9,20 @@ const run = async () => {
   console.log(`🕒 Xử lý ${logs.length} webhook...`);
 
   for (const log of logs) {
+    console.log("🔍 Đang xử lý log ID:", log._id);
+
     try {
       const payload = log.data;
 
-      // 👉 Xử lý logic ở đây (ví dụ: cập nhật tồn kho theo `payload`)
+      console.log("📦 Payload:", payload);
+
+      // Nếu chưa có hàm thật, giả lập chờ
       // await updateProductInventory(payload);
+      await new Promise((res) => setTimeout(res, 500)); // mô phỏng xử lý
 
       log.status = "done";
       await log.save();
+      console.log("✅ Đã xử lý xong log:", log._id);
     } catch (err) {
       log.status = "error";
       log.error = err.message;
