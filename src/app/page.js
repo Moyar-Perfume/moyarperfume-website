@@ -786,7 +786,7 @@ export default function Home() {
           {/* Mobile Grid View */}
           <div className="lg:hidden">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 px-4 sm:px-6">
-              {newestProduct.slice(0, 4).map((product) => (
+              {bestsellerProduct.slice(0, 4).map((product) => (
                 <Product
                   key={product.id}
                   product={product}
