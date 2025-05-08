@@ -76,16 +76,25 @@ export default function Navbar() {
           pauseOnHover={true}
           className="h-full flex items-center text-xs"
         >
-          <span className="mx-4">
-            FREE worldwide shipping on discovery boxes!
-          </span>
-          <span className="mx-4">
-            FREE worldwide shipping on discovery boxes!
-          </span>
-          <span className="mx-4">
-            Save 10% on first order with code WELCOME10
-          </span>
-          <span className="mx-4">New fragrances now available</span>
+          <a href="https://shopee.vn/moyarperfume" className="mx-10">
+            Mua Ngay Tại Shopee
+          </a>
+
+          <a href="https://shopee.vn/moyarperfume" className="mx-10">
+            Mua Ngay Tại Shopee
+          </a>
+
+          <a href="https://shopee.vn/moyarperfume" className="mx-10">
+            Mua Ngay Tại Shopee
+          </a>
+
+          <a href="https://shopee.vn/moyarperfume" className="mx-10">
+            Mua Ngay Tại Shopee
+          </a>
+
+          <a href="https://shopee.vn/moyarperfume" className="mx-10">
+            Mua Ngay Tại Shopee
+          </a>
         </Marquee>
       </div>
 

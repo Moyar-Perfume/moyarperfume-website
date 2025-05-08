@@ -12,6 +12,33 @@ import blogData from "@/data/blogData";
 import Product from "@/components/shared/Product";
 import api from "@/constants/apiURL";
 
+const feedbacks = [
+  {
+    color: "blue",
+    date: "01/11/2024",
+    content:
+      "Cảm giác nhận hàng y như unbox quà tặng! Đóng gói đẹp, chắc chắn, có cả giấy thơm. Mùi đúng chuẩn, lưu hương lâu. Giao hàng nhanh như chớp luôn!",
+  },
+  {
+    color: "puple",
+    date: "03/11/2024",
+    content:
+      "Mình rất ấn tượng cách shop chăm chút từng đơn hàng. Hộp được bọc chắc chắn, không hề móp méo. Mùi y chang bản full mình từng mua ở store – đúng hàng chuẩn chính hãng luôn!",
+  },
+  {
+    color: "pink",
+    date: "05/11/2024",
+    content:
+      "Giao hàng cực nhanh luôn, hôm qua đặt mà nay nhận được rồi. Hộp đóng gói rất chỉn chu, nhìn là thấy shop có tâm lắm đó!",
+  },
+  {
+    color: "green",
+    date: "07/11/2024",
+    content:
+      "Rất ưng cách shop đóng gói, cẩn thận từng lớp luôn. Kiểu như được tặng quà vậy á. Mình chắc chắn sẽ ủng hộ tiếp!",
+  },
+];
+
 const introItems = [
   {
     id: 1,
@@ -36,6 +63,142 @@ const introItems = [
   },
 ];
 
+const bestsellerProduct = [
+  {
+    id: 1,
+    name: "Narciso Rodriguez Pure Musc",
+    slug: "https://shopee.vn/10ml-Pure-Musc-Nar-tr%E1%BA%AFng-N%C6%B0%E1%BB%9Bc-hoa-n%E1%BB%AF-i.422771282.16657082469?sp_atk=44c9cd02-9c85-4e56-9431-baf0469819c4&xptdk=44c9cd02-9c85-4e56-9431-baf0469819c4",
+    tags: ["shadow_207 209 213"],
+    price: 0,
+    images: [{ url: "/product/product-01.png" }],
+    variants: [
+      { capacity: "10ml", price: 0, available: true },
+      { capacity: "Fullseal", price: 0, available: true },
+    ],
+    brandID: { name: "Narciso Rodriguez" },
+  },
+  {
+    id: 2,
+    name: "Signature EDP",
+    slug: "https://shopee.vn/10ml-Montblanc-Signature-N%C6%B0%E1%BB%9Bc-hoa-n%E1%BB%AF-Moyar-Perfume-i.422771282.15588612866",
+    tags: ["shadow_222 222 222"],
+    price: 0,
+    images: [{ url: "/product/product-02.png" }],
+    variants: [
+      { capacity: "10ml", price: 0, available: true },
+      { capacity: "Fullseal", price: 0, available: true },
+    ],
+    brandID: { name: "montblanc" },
+  },
+  {
+    id: 3,
+    name: "White Tea",
+    slug: "https://shopee.vn/10ml-Elizabeth-Arden-White-Tea-EDT-N%C6%B0%E1%BB%9Bc-hoa-n%E1%BB%AF-i.422771282.22152721778",
+    tags: ["shadow_246 244 242"],
+    price: 0,
+    images: [{ url: "/product/product-03.png" }],
+    variants: [
+      { capacity: "10ml", price: 0, available: true },
+      { capacity: "Fullseal", price: 0, available: true },
+    ],
+    brandID: { name: "Elizabeth Arden" },
+  },
+  {
+    id: 4,
+    name: "Bright Crystal",
+    slug: "https://shopee.vn/10ml-%E2%80%A2-Bright-Crystal-Versace-N%C6%B0%E1%BB%9Bc-hoa-n%E1%BB%AF-i.422771282.9879316410",
+    tags: ["shadow_228 166 192"],
+    price: 0,
+    images: [{ url: "/product/product-04.png" }],
+    variants: [
+      { capacity: "10ml", price: 0, available: true },
+      { capacity: "Fullseal", price: 0, available: true },
+    ],
+    brandID: { name: "Versace" },
+  },
+  {
+    id: 5,
+    name: "Narciso Rodriguez For Her EDP",
+    slug: "https://shopee.vn/10ml-Nar-Rodriguez-for-Her-EDP-(-h%E1%BB%93ng-nh%E1%BA%A1t-)-N%C6%B0%E1%BB%9Bc-hoa-n%E1%BB%AF-i.422771282.13114211594",
+    tags: ["shadow_246 202 196"],
+    price: 0,
+    images: [{ url: "/product/product-05.png" }],
+    variants: [
+      { capacity: "10ml", price: 0, available: true },
+      { capacity: "Fullseal", price: 0, available: true },
+    ],
+    brandID: { name: "Narciso Rodriguez" },
+  },
+];
+
+const newestProduct = [
+  {
+    id: 1,
+    name: "Kira Matcha Latte",
+    slug: "https://shopee.vn/10ml-Kira-Matcha-Latte-N%C6%B0%E1%BB%9Bc-hoa-unisex-Moyar-Perfume-i.422771282.26283877129",
+    tags: ["shadow_185 177 83"],
+    price: 0,
+    images: [{ url: "/product/product-06.png" }],
+    variants: [
+      { capacity: "10ml", price: 0, available: true },
+      { capacity: "Fullseal", price: 0, available: true },
+    ],
+    brandID: { name: "Kira" },
+  },
+  {
+    id: 2,
+    name: "Kira Rice Milk",
+    slug: "https://shopee.vn/10ml-Kira-Rice-Milk-N%C6%B0%E1%BB%9Bc-hoa-unisex-Moyar-Perfume-i.422771282.29233872269",
+    tags: ["shadow_212 186 152"],
+    price: 0,
+    images: [{ url: "/product/product-07.png" }],
+    variants: [
+      { capacity: "10ml", price: 0, available: true },
+      { capacity: "Fullseal", price: 0, available: true },
+    ],
+    brandID: { name: "Kira" },
+  },
+  {
+    id: 3,
+    name: "Kira Coffeeling",
+    slug: "https://shopee.vn/10ml-Kira-Coffeelling-N%C6%B0%E1%BB%9Bc-hoa-unisex-Moyar-Perfume-i.422771282.27083872275",
+    tags: ["shadow_166 123 107"],
+    price: 0,
+    images: [{ url: "/product/product-08.png" }],
+    variants: [
+      { capacity: "10ml", price: 0, available: true },
+      { capacity: "Fullseal", price: 0, available: true },
+    ],
+    brandID: { name: "Kira" },
+  },
+  {
+    id: 4,
+    name: "Spectre Wraith",
+    slug: "https://shopee.vn/10ml-Fragrance-World-Spectre-Wraith-N%C6%B0%E1%BB%9Bc-hoa-nam-Moyar-Perfume-i.422771282.28833809256",
+    tags: ["shadow_39 39 39"],
+    price: 0,
+    images: [{ url: "/product/product-09.png" }],
+    variants: [
+      { capacity: "10ml", price: 0, available: true },
+      { capacity: "Fullseal", price: 0, available: true },
+    ],
+    brandID: { name: "Fragrance World" },
+  },
+  {
+    id: 5,
+    name: "Spectre Ghost",
+    slug: "https://shopee.vn/10ml-Fragrance-World-Spectre-Ghost-N%C6%B0%E1%BB%9Bc-hoa-nam-Moyar-Perfume-i.422771282.24544190006",
+    tags: ["shadow_147 132 126"],
+    price: 0,
+    images: [{ url: "/product/product-10.png" }],
+    variants: [
+      { capacity: "10ml", price: 0, available: true },
+      { capacity: "Fullseal", price: 0, available: true },
+    ],
+    brandID: { name: "Fragrance World" },
+  },
+];
+
 export default function Home() {
   const [hoveredCategory, setHoveredCategory] = useState(null);
 
@@ -54,34 +217,32 @@ export default function Home() {
     });
   };
 
-  const [newestProduct, setNewestProduct] = useState([]);
+  // const [newestProduct, setNewestProduct] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchNewestProduct = async () => {
-      try {
-        setIsLoading(true);
-        const res = await api.get("/product-list?latest=true");
+  // useEffect(() => {
+  //   const fetchNewestProduct = async () => {
+  //     try {
+  //       setIsLoading(true);
+  //       const res = await api.get("/product-list?latest=true");
 
-        const data = res.data.products;
+  //       const data = res.data.products;
 
-        if (data) {
-          setNewestProduct(data); // Set sản phẩm mới nhất
-        } else {
-          console.log("Không có sản phẩm nào được trả về.");
-        }
-      } catch (err) {
-        console.error("Lỗi khi lấy sản phẩm:", err);
-        setError("Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  //       if (data) {
+  //         setNewestProduct(data); // Set sản phẩm mới nhất
+  //       } else {
+  //         console.log("Không có sản phẩm nào được trả về.");
+  //       }
+  //     } catch (err) {
+  //       console.error("Lỗi khi lấy sản phẩm:", err);
+  //       setError("Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.");
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    fetchNewestProduct();
-  }, []);
-
-  console.log(newestProduct);
+  //   fetchNewestProduct();
+  // }, []);
 
   const [blogPost, setBlogPost] = useState(blogData);
 
@@ -98,7 +259,7 @@ export default function Home() {
         {/* Text content - Đặt ở giữa banner */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 text-center w-full max-w-[600px] px-4">
           <span className="text-base sm:text-lg lg:text-xl text-white">
-            Selections of Exclusive Scents for just 20$
+            Belive In Miracle
           </span>
           <div className="mt-3 sm:mt-4">
             <span className="font-gotu text-sm sm:text-base lg:text-lg px-2 block text-white">
@@ -109,9 +270,11 @@ export default function Home() {
             </span>
           </div>
           <div className="mt-5 sm:mt-7 lg:mt-9">
-            <Button className="text-sm sm:text-base lg:text-lg px-6 sm:px-8 py-2.5 sm:py-3">
-              Find Your Scent
-            </Button>
+            <a href="https://shopee.vn/moyarperfume">
+              <Button className="text-sm sm:text-base lg:text-lg px-6 sm:px-8 py-2.5 sm:py-3">
+                Find Your Scent
+              </Button>
+            </a>
           </div>
         </div>
 
@@ -673,7 +836,7 @@ export default function Home() {
                   },
                 ]}
               >
-                {newestProduct.map((product) => (
+                {bestsellerProduct.map((product) => (
                   <div key={product.id} className="p-4 px-6 xl:px-8">
                     <Product
                       product={product}
@@ -935,13 +1098,7 @@ export default function Home() {
 
         {/* Grid 2x2 */}
         <div className="grid grid-cols-1 md:grid-cols-2 grid-rows-auto md:grid-rows-2 gap-4 sm:gap-5 md:gap-6 w-full max-w-[1400px] px-4 sm:px-6 md:px-8">
-          {/* Feedback Cards */}
-          {[
-            { color: "blue", date: "01/11/2024" },
-            { color: "puple", date: "01/11/2024" },
-            { color: "pink", date: "01/11/2024" },
-            { color: "green", date: "01/11/2024" },
-          ].map((item, cardIndex) => (
+          {feedbacks.map((item, cardIndex) => (
             <div
               key={cardIndex}
               className="w-full bg-white flex flex-col gap-6 sm:gap-8 md:gap-10 p-4 sm:p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow duration-300"
@@ -974,9 +1131,7 @@ export default function Home() {
 
               {/* Content */}
               <p className="text-sm sm:text-base leading-relaxed text-gray-700">
-                Asks all the right questions to develop an accurate profile of
-                your tastes. The suggestions are on point, interesting, and
-                unique, not on my radar, so it's fun to look them up.
+                {item.content}
               </p>
             </div>
           ))}

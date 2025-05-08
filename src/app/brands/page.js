@@ -2,6 +2,7 @@
 import { useRef } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
+import ComingSoon from "@/components/shared/ComingSoon";
 
 const brands = [
   { id: 1, name: "Amouage", logo: "/brands/amouage.png" },
@@ -95,121 +96,123 @@ export default function BrandPage() {
   ];
 
   return (
-    <main>
-      {/* Banner Section */}
-      <section className="bg-black w-full flex items-center justify-center min-h-[calc(100vh-132px)] relative">
-        <p className="absolute inset-0 z-20 text-white flex items-center justify-center text-2xl font-gotu text-center flex-col gap-4">
-          Discover a world of captivating aromas designed to leave a lasting
-          impression,
-          <br />
-          carefully curated to match your personal style and preferences.
-          <Button onClick={handleScrollToSection}>Choose Your Brand</Button>
-        </p>
-        <div className="absolute inset-0 bg-black opacity-80 z-10"></div>
-        <div className="w-[90%] h-[600px] relative">
-          <Image
-            src="/brand/brand-banner.png"
-            fill
-            className="object-cover"
-            alt="brand-banner"
-          />
-        </div>
-      </section>
+    // <main>
+    //   {/* Banner Section */}
+    //   <section className="bg-black w-full flex items-center justify-center min-h-[calc(100vh-132px)] relative">
+    //     <p className="absolute inset-0 z-20 text-white flex items-center justify-center text-2xl font-gotu text-center flex-col gap-4">
+    //       Discover a world of captivating aromas designed to leave a lasting
+    //       impression,
+    //       <br />
+    //       carefully curated to match your personal style and preferences.
+    //       <Button onClick={handleScrollToSection}>Choose Your Brand</Button>
+    //     </p>
+    //     <div className="absolute inset-0 bg-black opacity-80 z-10"></div>
+    //     <div className="w-[90%] h-[600px] relative">
+    //       <Image
+    //         src="/brand/brand-banner.png"
+    //         fill
+    //         className="object-cover"
+    //         alt="brand-banner"
+    //       />
+    //     </div>
+    //   </section>
 
-      {/* Brand List Section */}
-      <section ref={sectionRef} className="min-h-screen w-full">
-        {groups.map((group, index) => {
-          const brandsInGroup = group.letters.flatMap(
-            (letter) => groupedBrands[letter] || []
-          );
+    //   {/* Brand List Section */}
+    //   <section ref={sectionRef} className="min-h-screen w-full">
+    //     {groups.map((group, index) => {
+    //       const brandsInGroup = group.letters.flatMap(
+    //         (letter) => groupedBrands[letter] || []
+    //       );
 
-          if (brandsInGroup.length === 0) return null;
+    //       if (brandsInGroup.length === 0) return null;
 
-          return (
-            <div key={index} className=" items-start p-10 px-24 w-full">
-              {index % 2 === 0 ? (
-                <div className="  border-b-[1px] border-black w-full grid grid-cols-2 pb-20">
-                  {/* Ảnh bên trái */}
-                  <div className="w-full h-full relative col-span-1">
-                    <Image
-                      src={group.image}
-                      fill
-                      className="object-cover"
-                      alt={group.title}
-                    />
-                  </div>
+    //       return (
+    //         <div key={index} className=" items-start p-10 px-24 w-full">
+    //           {index % 2 === 0 ? (
+    //             <div className="  border-b-[1px] border-black w-full grid grid-cols-2 pb-20">
+    //               {/* Ảnh bên trái */}
+    //               <div className="w-full h-full relative col-span-1">
+    //                 <Image
+    //                   src={group.image}
+    //                   fill
+    //                   className="object-cover"
+    //                   alt={group.title}
+    //                 />
+    //               </div>
 
-                  {/* Danh sách bên phải */}
-                  <div className="grid grid-cols-3 gap-4 p-4">
-                    {group.letters.map(
-                      (letter) =>
-                        groupedBrands[letter] && (
-                          <div
-                            key={letter}
-                            className="col-span-1 flex flex-col items-center h-full  p-4"
-                          >
-                            <span className="text-4xl font-gotu pb-2">
-                              {letter}
-                            </span>
-                            <ul className="mt-2 space-y-1 flex flex-col items-center">
-                              {groupedBrands[letter].map((brand) => (
-                                <li
-                                  key={brand.id}
-                                  className="text-lg hover:underline cursor-pointer"
-                                >
-                                  {brand.name}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="  border-b-[1px] border-black w-full grid grid-cols-2 pb-20">
-                  {/* Danh sách bên trái */}
-                  <div className="grid grid-cols-3 gap-4 p-4">
-                    {group.letters.map(
-                      (letter) =>
-                        groupedBrands[letter] && (
-                          <div
-                            key={letter}
-                            className="col-span-1 flex flex-col items-center h-full p-4"
-                          >
-                            <span className="text-4xl font-gotu pb-2">
-                              {letter}
-                            </span>
-                            <ul className="mt-2 space-y-1 flex flex-col items-center">
-                              {groupedBrands[letter].map((brand) => (
-                                <li
-                                  key={brand.id}
-                                  className="text-lg hover:underline cursor-pointer"
-                                >
-                                  {brand.name}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )
-                    )}
-                  </div>
+    //               {/* Danh sách bên phải */}
+    //               <div className="grid grid-cols-3 gap-4 p-4">
+    //                 {group.letters.map(
+    //                   (letter) =>
+    //                     groupedBrands[letter] && (
+    //                       <div
+    //                         key={letter}
+    //                         className="col-span-1 flex flex-col items-center h-full  p-4"
+    //                       >
+    //                         <span className="text-4xl font-gotu pb-2">
+    //                           {letter}
+    //                         </span>
+    //                         <ul className="mt-2 space-y-1 flex flex-col items-center">
+    //                           {groupedBrands[letter].map((brand) => (
+    //                             <li
+    //                               key={brand.id}
+    //                               className="text-lg hover:underline cursor-pointer"
+    //                             >
+    //                               {brand.name}
+    //                             </li>
+    //                           ))}
+    //                         </ul>
+    //                       </div>
+    //                     )
+    //                 )}
+    //               </div>
+    //             </div>
+    //           ) : (
+    //             <div className="  border-b-[1px] border-black w-full grid grid-cols-2 pb-20">
+    //               {/* Danh sách bên trái */}
+    //               <div className="grid grid-cols-3 gap-4 p-4">
+    //                 {group.letters.map(
+    //                   (letter) =>
+    //                     groupedBrands[letter] && (
+    //                       <div
+    //                         key={letter}
+    //                         className="col-span-1 flex flex-col items-center h-full p-4"
+    //                       >
+    //                         <span className="text-4xl font-gotu pb-2">
+    //                           {letter}
+    //                         </span>
+    //                         <ul className="mt-2 space-y-1 flex flex-col items-center">
+    //                           {groupedBrands[letter].map((brand) => (
+    //                             <li
+    //                               key={brand.id}
+    //                               className="text-lg hover:underline cursor-pointer"
+    //                             >
+    //                               {brand.name}
+    //                             </li>
+    //                           ))}
+    //                         </ul>
+    //                       </div>
+    //                     )
+    //                 )}
+    //               </div>
 
-                  {/* Ảnh bên phải */}
-                  <div className="w-full h-full relative col-span-1">
-                    <Image
-                      src={group.image}
-                      fill
-                      className="object-cover"
-                      alt={group.title}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </section>
-    </main>
+    //               {/* Ảnh bên phải */}
+    //               <div className="w-full h-full relative col-span-1">
+    //                 <Image
+    //                   src={group.image}
+    //                   fill
+    //                   className="object-cover"
+    //                   alt={group.title}
+    //                 />
+    //               </div>
+    //             </div>
+    //           )}
+    //         </div>
+    //       );
+    //     })}
+    //   </section>
+    // </main>
+
+    <ComingSoon />
   );
 }

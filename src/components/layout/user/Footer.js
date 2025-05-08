@@ -30,12 +30,19 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6 text-gray-300 text-sm">
           {/* Address */}
           <div>
-            <p>Address / 70 Lu Gia Street, District 11, HCM City</p>
-            <p>Phone / 0829.697.779</p>
-            <p>Email / support@moyarperfume.com</p>
+            <a href="https://www.google.com/maps/place/Moyar+Perfume/@10.8762878,106.644729,17z/data=!3m1!4b1!4m6!3m5!1s0x317529bfb3be43fd:0xad87e342f4a4a269!8m2!3d10.8762878!4d106.6473039!16s%2Fg%2F11rq62rt6l?entry=ttu&g_ep=EgoyMDI1MDUwMy4wIKXMDSoJLDEwMjExNDUzSAFQAw%3D%3D">
+              Address / 47-49 Đ. Nguyễn Ảnh Thủ, Hiệp Thành, Quận 12, Hồ Chí
+              Minh, Vietnam
+            </a>
+            <a href="tel:0829697779" className="mt-2">
+              Phone / 0829.697.779
+            </a>
+            <a href="mailto:moyarperfume@gmail.com">
+              Email / moyarperfume@gmail.com
+            </a>
             <div className="flex gap-4 mt-4">
               <a
-                href="#"
+                href="https://www.facebook.com/profile.php?id=100067190345939"
                 className="text-xl bg-white rounded-full w-[30px] h-[30px] flex items-center justify-center"
               >
                 <svg
@@ -50,7 +57,7 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/moyarperfume"
                 className="text-xl bg-white rounded-full w-[30px] h-[30px] flex items-center justify-center"
               >
                 <svg
@@ -65,7 +72,7 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://www.tiktok.com/@moyarperfumee"
                 className="text-xl bg-white rounded-full w-[30px] h-[30px] flex items-center justify-center"
               >
                 <svg
@@ -78,6 +85,13 @@ export default function Footer() {
                 >
                   <path d="M41,4H9C6.243,4,4,6.243,4,9v32c0,2.757,2.243,5,5,5h32c2.757,0,5-2.243,5-5V9C46,6.243,43.757,4,41,4z M37.006,22.323 c-0.227,0.021-0.457,0.035-0.69,0.035c-2.623,0-4.928-1.349-6.269-3.388c0,5.349,0,11.435,0,11.537c0,4.709-3.818,8.527-8.527,8.527 s-8.527-3.818-8.527-8.527s3.818-8.527,8.527-8.527c0.178,0,0.352,0.016,0.527,0.027v4.202c-0.175-0.021-0.347-0.053-0.527-0.053 c-2.404,0-4.352,1.948-4.352,4.352s1.948,4.352,4.352,4.352s4.527-1.894,4.527-4.298c0-0.095,0.042-19.594,0.042-19.594h4.016 c0.378,3.591,3.277,6.425,6.901,6.685V22.323z"></path>
                 </svg>
+              </a>
+
+              <a
+                href="https://shopee.vn/moyarperfume"
+                className="text-xl bg-white rounded-full w-[30px] h-[30px] flex items-center justify-center"
+              >
+                <img src="/icon/shopee.svg" className="w-[15px] h-[15px]" />
               </a>
             </div>
             <div className="mt-4 flex items-center gap-2">
@@ -95,17 +109,26 @@ export default function Footer() {
             <h3 className="text-white font-semibold">We share things on</h3>
             <ul className="mt-2 space-y-1">
               <li>
-                <a href="#" className="hover:text-white">
+                <a
+                  href="https://www.instagram.com/moyarperfume"
+                  className="hover:text-white"
+                >
                   Instagram
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white">
+                <a
+                  href="https://www.facebook.com/profile.php?id=100067190345939"
+                  className="hover:text-white"
+                >
                   Facebook
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white">
+                <a
+                  href="https://shopee.vn/moyarperfume"
+                  className="hover:text-white"
+                >
                   Shopee
                 </a>
               </li>
@@ -115,8 +138,8 @@ export default function Footer() {
                 </a>
               </li>
             </ul>
-            <h3 className="text-white font-semibold mt-4">Payment</h3>
-            <p className="mt-2">Visa / Master Card / Momo / ZaloPay</p>
+            {/* <h3 className="text-white font-semibold mt-4">Payment</h3>
+            <p className="mt-2">Visa / Master Card / Momo / ZaloPay</p> */}
           </div>
 
           {/* About */}
@@ -149,7 +172,9 @@ export default function Footer() {
           {/* Hotline */}
           <div>
             <h3 className="text-white font-semibold">Hotline Support</h3>
-            <p className="mt-2">Online / 0829.697.779</p>
+            <a href="tel:0829697779" className="mt-2">
+              Online / 0829.697.779
+            </a>
             <Button className="mt-2 text-sm">Find your Scents</Button>
           </div>
         </div>

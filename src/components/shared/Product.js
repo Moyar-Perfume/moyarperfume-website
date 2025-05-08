@@ -43,7 +43,9 @@ const Product = ({
   }
 
   // URL của sản phẩm
-  const productUrl = `/products/${slug}`;
+  // const productUrl = `/products/${slug}`;
+
+  const productUrl = `${slug}`;
 
   // Lọc các variants có available=true
   const availableVariants =
