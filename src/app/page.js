@@ -259,7 +259,7 @@ export default function Home() {
         {/* Text content - Đặt ở giữa banner */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 text-center w-full max-w-[600px] px-4">
           <span className="text-base sm:text-lg lg:text-xl text-white">
-            Belive In Miracle
+            Believe In Miracle
           </span>
           <div className="mt-3 sm:mt-4">
             <span className="font-gotu text-sm sm:text-base lg:text-lg px-2 block text-white">
@@ -521,7 +521,7 @@ export default function Home() {
           {/* Mobile Grid View */}
           <div className="lg:hidden">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 px-4 sm:px-6">
-              {newestProduct.slice(0, 4).map((product) => (
+              {newestProduct.slice(0, 5).map((product) => (
                 <Product
                   key={product.id}
                   product={product}
@@ -786,7 +786,7 @@ export default function Home() {
           {/* Mobile Grid View */}
           <div className="lg:hidden">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 px-4 sm:px-6">
-              {bestsellerProduct.slice(0, 4).map((product) => (
+              {bestsellerProduct.slice(0, 5).map((product) => (
                 <Product
                   key={product.id}
                   product={product}
