@@ -26,7 +26,7 @@ const ProductNhanhvnSchema = new mongoose.Schema(
     brandID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Brand",
-      required: true,
+      required: false,
     },
     views: { type: Number, default: 0 },
   },
