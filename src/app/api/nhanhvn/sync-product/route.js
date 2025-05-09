@@ -4,21 +4,10 @@ import ProductNhanhvn from "@/models/ProductNhanhvn";
 import Brand from "@/models/Brand";
 import slugify from "slugify";
 import { connectDB } from "@/libs/mongoDB";
+import { splitNameAndCapacity } from "@/utils/splitNameAndCapacity";
 
 // ----------------------- Helpers -----------------------
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const splitNameAndCapacity = (fullName = "") => {
-  const cleanName = fullName
-    .replace(/[\u2013\u2014\u2012\u2010\u2011]/g, "-") // chuẩn hóa dash Unicode
-    .replace(/[\s\u00A0]*[-\u2010-\u2015][\s\u00A0]*/g, " - "); // chuẩn hóa mọi dấu gạch về " - "
-
-  const [baseName, capacity = "default"] = cleanName
-    .split(" - ")
-    .map((part) => part.trim());
-
-  return { baseName, capacity };
-};
 
 const fetchNhanhvnProducts = async () => {
   let page = 1;
