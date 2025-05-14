@@ -136,53 +136,85 @@ async function handleProductUpdate({ data }) {
 
   const slug = slugify(baseName, {
     lower: true,
-    strict: true, // Loại bỏ ký tự đặc biệt
-    locale: "vi", // Hỗ trợ tiếng Việt
+    strict: true,
+    locale: "vi",
   });
 
-  const product = await ProductNhanhvn.findOne({
+  // 1️⃣ Tìm product đang chứa variant
+  const oldProduct = await ProductNhanhvn.findOne({
     "variants.nhanhID": nhanhID,
   });
 
-  if (!product) {
+  if (!oldProduct) {
     console.warn("❗ Không tìm thấy sản phẩm chứa variant nhanhID:", nhanhID);
     return;
   }
 
-  // Cập nhật tên sản phẩm nếu khác
-  if (product.name !== baseName) {
-    console.log(`🔁 Đổi tên: "${product.name}" → "${baseName}"`);
-    product.name = baseName;
-    product.slug = slug;
-  }
+  // 2️⃣ Nếu tên không đổi ⇒ cập nhật bình thường
+  if (oldProduct.name === baseName) {
+    const idx = oldProduct.variants.findIndex((v) => v.nhanhID === nhanhID);
+    if (idx === -1)
+      return console.warn(`⚠️ Không tìm thấy variant nhanhID ${nhanhID}`);
 
-  // Cập nhật variant cụ thể
-  const idx = product.variants.findIndex((v) => v.nhanhID === nhanhID);
-  if (idx === -1) {
-    console.warn(`⚠️ Không tìm thấy variant nhanhID ${nhanhID}`);
+    oldProduct.variants[idx] = {
+      ...oldProduct.variants[idx].toObject(),
+      ...variantData,
+    };
+
+    await oldProduct.save();
+    console.log(`✅ Cập nhật variant ${nhanhID} trong "${baseName}"`);
     return;
   }
 
-  product.variants[idx] = {
-    ...product.variants[idx].toObject(),
-    ...variantData,
-  };
+  // 3️⃣ Nếu tên mới khác ⇒ chuyển variant sang product mới
+  console.log(`🔁 Đổi baseName: "${oldProduct.name}" → "${baseName}"`);
 
-  await product.save();
-  console.log(`✅ Đã cập nhật variant ${nhanhID} cho sản phẩm "${baseName}"`);
+  // Gỡ variant khỏi product cũ
+  oldProduct.variants = oldProduct.variants.filter(
+    (v) => v.nhanhID !== nhanhID
+  );
+  await oldProduct.save();
+
+  // Xoá product cũ nếu rỗng
+  if (oldProduct.variants.length === 0) {
+    await ProductNhanhvn.deleteOne({ _id: oldProduct._id });
+    console.log(`🗑️ Xoá product rỗng "${oldProduct.name}"`);
+  }
+
+  // Tìm product mới theo slug
+  let newProduct = await ProductNhanhvn.findOne({ slug });
+  if (!newProduct) {
+    // Nếu chưa có ⇒ tạo mới
+    newProduct = await ProductNhanhvn.create({
+      name: baseName,
+      slug,
+      available: true,
+      variants: [variantData],
+    });
+    console.log(`🆕 Tạo product mới "${baseName}" và thêm variant ${capacity}`);
+  } else {
+    // Đã có ⇒ thêm variant
+    newProduct.variants.push(variantData);
+    await newProduct.save();
+    console.log(`🔗 Thêm variant ${capacity} vào product "${baseName}"`);
+  }
 }
 
 async function handleProductDelete({ data }) {
-  const id = data.productId;
-  console.log(`🗑️ [DELETE] nhanhID ${id}`);
+  if (!Array.isArray(data) || data.length === 0) {
+    console.warn("⚠️ Dữ liệu xóa không hợp lệ:", data);
+    return;
+  }
 
-  // Gỡ variant khỏi mọi product
+  const ids = data.map((id) => id.toString());
+  console.log(`🗑️ [DELETE] nhanhIDs: ${ids.join(", ")}`);
+
   const res = await ProductNhanhvn.updateMany(
     {},
-    { $pull: { variants: { nhanhID: id.toString() } } }
+    { $pull: { variants: { nhanhID: { $in: ids } } } }
   );
   console.log(`🗑️ Đã gỡ variant khỏi ${res.modifiedCount} sản phẩm`);
 
-  // Xoá product rỗng (không còn variants)
+  // Xoá product rỗng
   await ProductNhanhvn.deleteMany({ variants: { $size: 0 } });
 }

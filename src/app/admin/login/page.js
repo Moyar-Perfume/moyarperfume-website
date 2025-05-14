@@ -21,14 +21,13 @@ export default function AdminLogin() {
   const handleLogin = async () => {
     try {
       setLoading(true);
-      
+
       const result = await signIn("credentials", {
         username,
         password,
         redirect: false,
       });
-      
-      
+
       if (result.error) {
         console.error("Lỗi đăng nhập:", result.error);
         alert(result.error);

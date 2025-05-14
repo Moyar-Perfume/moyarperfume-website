@@ -33,9 +33,7 @@ export async function POST(req) {
 
     const productDetail = res.data?.data?.[productId];
 
-    const content = productDetail.content || "";
-
-    return NextResponse.json({ content }, { status: 200 });
+    return NextResponse.json({ productDetail }, { status: 200 });
   } catch (err) {
     console.error("❌ Lỗi fetch chi tiết sản phẩm:", err.message);
     return NextResponse.json({ message: "Lỗi server" }, { status: 500 });

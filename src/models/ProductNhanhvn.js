@@ -8,16 +8,11 @@ const VariantSchema = new mongoose.Schema({
   nhanhID: { type: String, required: true },
 });
 
-// Define image schema for more structured image data
-const ImageSchema = new mongoose.Schema({
-  url: { type: String, required: true },
-  type: { type: String, default: "main" },
-});
-
 const ProductNhanhvnSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    images: [ImageSchema],
+    mainImage: { type: String, required: false },
+    subImages: [{ type: String }],
     slug: { type: String, required: true, unique: true },
     tags: { type: [String] },
     available: { type: Boolean, default: true },
