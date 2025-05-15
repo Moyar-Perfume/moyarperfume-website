@@ -2,6 +2,7 @@ import cloudinary from "@/libs/cloudinary";
 import { connectDB } from "@/libs/mongoDB";
 import Brand from "@/models/Brand";
 import Product from "@/models/Product";
+import ProductNhanhvn from "@/models/ProductNhanhvn";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
@@ -117,10 +118,10 @@ export async function GET(req) {
       ],
     };
 
-    const totalProducts = await Product.countDocuments(searchCondition);
+    const totalProducts = await ProductNhanhvn.countDocuments(searchCondition);
     const totalPages = Math.ceil(totalProducts / limit);
 
-    const products = await Product.find(searchCondition)
+    const products = await ProductNhanhvn.find(searchCondition)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -147,94 +148,63 @@ export async function GET(req) {
   }
 }
 
-// export async function PUT(req) {
+////// Sản Phẩm Cũ
+// export async function GET(req) {
 //   await connectDB();
 //   try {
-//     const body = await req.json();
-//     const { id, ...updateData } = body;
+//     const url = new URL(req.url);
+//     const searchParams = url.searchParams;
 
-//     if (!id) {
-//       return NextResponse.json(
-//         { error: "ID sản phẩm không được cung cấp" },
-//         { status: 400 }
-//       );
+//     const page = parseInt(searchParams.get("page") || "1");
+//     const limit = parseInt(searchParams.get("limit") || "12");
+//     const skip = (page - 1) * limit;
+
+//     const searchQuery = searchParams.get("search")?.trim() || "";
+
+//     let brandIDs = [];
+
+//     // Tìm tất cả brand có chứa từ khóa trong tên
+//     if (searchQuery) {
+//       const matchedBrands = await Brand.find({
+//         name: { $regex: searchQuery, $options: "i" },
+//       }).select("_id");
+
+//       brandIDs = matchedBrands.map((brand) => brand._id);
 //     }
 
-//     // Update product timestamps
-//     updateData.updatedAt = new Date();
+//     // Điều kiện tìm kiếm
+//     const searchCondition = {
+//       $or: [
+//         { name: { $regex: searchQuery, $options: "i" } }, // theo tên sản phẩm
+//         { brandID: { $in: brandIDs } }, // theo brand khớp
+//       ],
+//     };
 
-//     // Find and update the product
-//     const updatedProduct = await Product.findByIdAndUpdate(
-//       id,
-//       { $set: updateData },
-//       { new: true }
-//     );
+//     const totalProducts = await Product.countDocuments(searchCondition);
+//     const totalPages = Math.ceil(totalProducts / limit);
 
-//     if (!updatedProduct) {
-//       return NextResponse.json(
-//         { error: "Không tìm thấy sản phẩm" },
-//         { status: 404 }
-//       );
-//     }
+//     const products = await Product.find(searchCondition)
+//       .sort({ createdAt: -1 })
+//       .skip(skip)
+//       .limit(limit)
+//       .populate("brandID", "name");
 
-//     return NextResponse.json({
-//       message: "Cập nhật sản phẩm thành công",
-//       product: updatedProduct,
-//     });
-//   } catch (error) {
-//     console.error("Error updating product:", error);
 //     return NextResponse.json(
-//       { error: "Không thể cập nhật sản phẩm", details: error.message },
-//       { status: 500 }
+//       {
+//         products,
+//         pagination: {
+//           currentPage: page,
+//           totalPages,
+//           totalProducts,
+//           hasMore: page < totalPages,
+//         },
+//       },
+//       { status: 200 }
 //     );
-//   }
-// }
-
-// export async function DELETE(req) {
-//   await connectDB();
-//   try {
-//     const { searchParams } = new URL(req.url);
-//     const id = searchParams.get("id");
-
-//     if (!id) {
-//       return NextResponse.json(
-//         { error: "ID sản phẩm không được cung cấp" },
-//         { status: 400 }
-//       );
-//     }
-
-//     const product = await Product.findById(id);
-
-//     console.log(product.images[0].url);
-
-//     // Lấy public_id từ URL logo
-//     // if (product.images[0].url) {
-//     //   const publicId = getPublicIdFolderFromUrl(product.images[0].url);
-
-//     //   cloudinary.api.delete_resources_by_prefix(
-//     //     `${publicId}/`,
-//     //     (error, result) => {
-//     //       console.log(result, error);
-//     //     }
-//     //   );
-//     // }
-
-//     // const deletedProduct = await Product.findByIdAndDelete(id);
-
-//     // if (!deletedProduct) {
-//     //   return NextResponse.json(
-//     //     { error: "Không tìm thấy sản phẩm" },
-//     //     { status: 404 }
-//     //   );
-//     // }
-
-//     return NextResponse.json({
-//       message: "Xóa sản phẩm thành công",
-//     });
 //   } catch (error) {
-//     console.error("Error deleting product:", error);
+//     console.error("Error fetching products:", error);
 //     return NextResponse.json(
-//       { error: "Không thể xóa sản phẩm", details: error.message },
+//       { error: "Không thể lấy dữ liệu sản phẩm", details: error.message },
 //       { status: 500 }
 //     );
 //   }

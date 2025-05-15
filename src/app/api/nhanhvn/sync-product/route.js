@@ -71,6 +71,7 @@ const groupProductsByBaseName = (products) => {
       price: p.price || 0,
       quantity: p.inventory?.available || 0,
       image: p.image || "",
+      images: p.images || [],
       brandName: p.brandName || "",
     });
   }
@@ -135,7 +136,16 @@ const saveGroupedProductsToDB = async (grouped) => {
       available: v.quantity > 0,
     }));
 
-    const { image, brandName, nhanhID } = productGroup[0] || {};
+    const tenMlVariant = productGroup.find((v) => v.capacity === "10ml");
+    if (!tenMlVariant) {
+      console.warn(`⚠️ Không tìm thấy biến thể 10ml cho ${baseName}, bỏ qua.`);
+      continue;
+    }
+
+    const mainImage = tenMlVariant.image || "";
+    const subImages = tenMlVariant.images || [];
+    const { brandName, nhanhID } = tenMlVariant;
+
     let brandID = null;
 
     if (brandName) {
@@ -156,7 +166,6 @@ const saveGroupedProductsToDB = async (grouped) => {
       brandID = brand?._id || null;
     }
 
-    // Chờ 220ms trước khi gọi tiếp API chi tiết
     await sleep(delayBetweenCalls);
     const description = nhanhID ? await fetchProductDetail(nhanhID) : "";
 
@@ -166,7 +175,8 @@ const saveGroupedProductsToDB = async (grouped) => {
         name: baseName,
         slug,
         variants,
-        images: image ? [{ url: image }] : [],
+        mainImage,
+        subImages,
         brandID,
         available: true,
         description,

@@ -6,7 +6,7 @@ import axios from "axios";
 // });
 
 const api = axios.create({
-  baseURL: process.env.API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true, // ⚠️ Cần thiết để nhận cookie từ server
 });
 
