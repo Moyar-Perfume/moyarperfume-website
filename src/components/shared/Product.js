@@ -16,7 +16,7 @@ const Product = ({
 
   if (!product) return null;
 
-  const { name, slug, tags, price, images, variants, brandID } = product;
+  const { name, slug, tags, price, mainImage, variants, brandID } = product;
 
   // Lấy shadow từ tag (nếu có)
   const shadowTag = tags?.find((tag) => tag?.startsWith("shadow_"));
@@ -43,9 +43,9 @@ const Product = ({
   }
 
   // URL của sản phẩm
-  // const productUrl = `/products/${slug}`;
+  const productUrl = `/products/${slug}`;
 
-  const productUrl = `${slug}`;
+  // const productUrl = `${slug}`;
 
   // Lọc các variants có available=true
   const availableVariants =
@@ -97,11 +97,7 @@ const Product = ({
             className={`relative w-full ${imageSize} max-w-[400px] overflow-hidden rounded-sm transition-all duration-300`}
           >
             <Image
-              src={
-                images && images.length > 0
-                  ? images[0].url
-                  : "/product/placeholder-product-01.png"
-              }
+              src={mainImage}
               alt={name}
               fill
               sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 30vw"

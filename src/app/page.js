@@ -605,7 +605,7 @@ export default function Home() {
           >
             <div className="w-full max-w-[600px] xl:max-w-full h-[250px] sm:h-[300px] md:h-[350px] relative overflow-hidden">
               <Image
-                src="/category/men.png"
+                src="/category/men.jpg"
                 alt="Men's perfume"
                 fill
                 sizes="(max-width: 1280px) 90vw, 33vw"

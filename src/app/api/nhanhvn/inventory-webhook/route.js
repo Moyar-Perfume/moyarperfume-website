@@ -121,6 +121,8 @@ async function handleProductUpdate({ data }) {
   const name = data.name?.trim();
   const price = data.price || 0;
   const quantity = data.inventories?.remain || 0;
+  const content = data.content || "";
+  const description = data.description || "";
 
   if (!name) return console.warn("❗ Không có tên sản phẩm trong webhook");
 
@@ -188,6 +190,8 @@ async function handleProductUpdate({ data }) {
     newProduct = await ProductNhanhvn.create({
       name: baseName,
       slug,
+      content,
+      description,
       available: true,
       variants: [variantData],
     });

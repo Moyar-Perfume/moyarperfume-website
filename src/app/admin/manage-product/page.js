@@ -92,6 +92,8 @@ export default function ManageProduct() {
       quantity: product.quantity,
       updatedAt: product.updatedAt,
       slug: product.slug,
+      mainImage: product.mainImage,
+      subImages: product.subImages,
       images: product.images,
       variants: product.variants,
       brand: product.brandID?.name,
@@ -146,14 +148,6 @@ export default function ManageProduct() {
   const handleCancelDelete = () => {
     setDeleteModalVisible(false);
     setProductToDelete(null);
-  };
-
-  // Tạo helper function để lấy hình ảnh theo type
-  const getImageByType = (images, type) => {
-    if (!images || !Array.isArray(images)) return null;
-
-    const image = images.find((img) => img.type === type);
-    return image ? image.url : null;
   };
 
   // Hàm xử lý chuyển đổi trạng thái available của sản phẩm
@@ -215,6 +209,14 @@ export default function ManageProduct() {
       setAvailableLoading((prev) => ({ ...prev, [loadingKey]: false }));
     }
   };
+
+  // // Tạo helper function để lấy hình ảnh theo type
+  // const getImageByType = (images, type) => {
+  //   if (!images || !Array.isArray(images)) return null;
+
+  //   const image = images.find((img) => img.type === type);
+  //   return image ? image.url : null;
+  // };
 
   return (
     <div className="bg-white shadow-md p-4 w-full min-h-[calc(100vh-70px)] flex flex-col">
@@ -359,12 +361,9 @@ export default function ManageProduct() {
                       <td className="px-4 py-2 text-xs text-black align-top w-1/5">
                         <div className="flex items-center space-x-2">
                           <div className="min-w-[50px] min-h-[50px] relative">
+                            {console.log(product)}
                             <Image
-                              src={
-                                getImageByType(product.images, "main") ||
-                                product.images?.[0]?.url ||
-                                "/product/placeholder-product-01.png"
-                              }
+                              src={product.mainImage}
                               fill
                               alt={`Hình ${product.slug}`}
                               className="object-contain"
@@ -406,12 +405,12 @@ export default function ManageProduct() {
                           >
                             Sửa
                           </a>
-                          <button
+                          {/* <button
                             className="text-red-600 hover:text-red-900"
                             onClick={() => showDeleteConfirm(product)}
                           >
                             Xóa
-                          </button>
+                          </button> */}
                         </div>
                       </td>
                     </tr>
@@ -532,7 +531,7 @@ export default function ManageProduct() {
       )}
 
       {/* Modal xác nhận xóa */}
-      <Modal
+      {/* <Modal
         title="Xác nhận xóa"
         open={deleteModalVisible}
         onCancel={handleCancelDelete}
@@ -559,7 +558,7 @@ export default function ManageProduct() {
             Hành động này không thể hoàn tác.
           </p>
         )}
-      </Modal>
+      </Modal> */}
     </div>
   );
 }

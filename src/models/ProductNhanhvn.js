@@ -18,6 +18,7 @@ const ProductNhanhvnSchema = new mongoose.Schema(
     available: { type: Boolean, default: true },
     variants: [VariantSchema],
     description: { type: String },
+    content: { type: String },
     brandID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Brand",

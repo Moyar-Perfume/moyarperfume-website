@@ -136,15 +136,16 @@ const saveGroupedProductsToDB = async (grouped) => {
       available: v.quantity > 0,
     }));
 
-    const tenMlVariant = productGroup.find((v) => v.capacity === "10ml");
-    if (!tenMlVariant) {
-      console.warn(`⚠️ Không tìm thấy biến thể 10ml cho ${baseName}, bỏ qua.`);
-      continue;
-    }
+    // Tìm biến thể 10ml nếu có
+    const tenMlVariant =
+      productGroup.find((v) => v.capacity === "10ml") ||
+      productGroup.find((v) => v.capacity.toLowerCase().includes("chiết 10ml"));
 
-    const mainImage = tenMlVariant.image || "";
-    const subImages = tenMlVariant.images || [];
-    const { brandName, nhanhID } = tenMlVariant;
+    // Nếu không có 10ml thì để ảnh rỗng
+    const mainImage = tenMlVariant ? tenMlVariant.image || "" : "";
+    const subImages = tenMlVariant ? tenMlVariant.images || [] : [];
+    const brandName = tenMlVariant ? tenMlVariant.brandName : "";
+    const nhanhID = tenMlVariant ? tenMlVariant.nhanhID : "";
 
     let brandID = null;
 
@@ -158,7 +159,6 @@ const saveGroupedProductsToDB = async (grouped) => {
           console.log("✅ Tạo brand mới:", brandName);
         } catch (err) {
           console.error("❌ Không thể tạo brand:", brandName, "-", err.message);
-          continue;
         }
       } else {
         console.log("⏭️ Brand đã tồn tại:", brandName);
