@@ -24,6 +24,7 @@ import { useParams } from "next/navigation";
 import InfoCard from "../../add-product/InfoCard";
 import EditProductImagesCard from "./EditProductImagesCard";
 import ProductTagsCard from "../../add-product/ProductTagsCard";
+import ViewProductImagesCard from "./ViewProductImagesCard";
 
 export default function EditProduct() {
   const router = useRouter();
@@ -37,11 +38,16 @@ export default function EditProduct() {
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+
   const [mainImage, setMainImage] = useState("");
+  const [descImage, setDescImage] = useState("");
+  const [featImage, setFeatImage] = useState("");
+
   const [product, setProduct] = useState(null);
-  const [mainFileList, setMainFileList] = useState([]);
-  const [descFileList, setDescFileList] = useState([]);
-  const [featureFileList, setFeatureFileList] = useState([]);
+
+  // const [mainFileList, setMainFileList] = useState([]);
+  // const [descFileList, setDescFileList] = useState([]);
+  // const [featureFileList, setFeatureFileList] = useState([]);
 
   // Thiết lập giá trị form khi editProduct được tải
   useEffect(() => {
@@ -57,62 +63,58 @@ export default function EditProduct() {
           setSelectedTags(productData.tags || []);
 
           // Chuyển đổi mảng images để phù hợp với Upload component
-          const mainImages = [];
-          const descImages = [];
-          const featureImages = [];
+          setMainImage(productData.mainImage || []);
+          setDescImage(productData.subImages[0] || []);
+          setFeatImage(productData.subImages[1] || []);
 
           // Đảm bảo rằng productData.images là một mảng
-          const productImages = Array.isArray(productData.images)
-            ? productData.images
-            : [];
+          // const productImages = Array.isArray(productData.images)
+          //   ? productData.images
+          //   : [];
 
           // Phân loại hình ảnh dựa trên type
-          productImages.forEach((img, index) => {
-            // Xác định typeNumber dựa trên type
-            const typeNumber =
-              img.type === "main" ? 1 : img.type === "description" ? 2 : 3;
+          // productImages.forEach((img, index) => {
+          //   // Xác định typeNumber dựa trên type
+          //   const typeNumber =
+          //     img.type === "main" ? 1 : img.type === "description" ? 2 : 3;
 
-            const fileObj = {
-              uid: img._id || `-${index}`,
-              name: `image-${index}.jpg`,
-              status: "done",
-              url: img.url,
-              type: img.type || "main",
-              _id: img._id,
-              thumbUrl: img.url,
-              typeNumber: typeNumber,
-            };
+          //   const fileObj = {
+          //     uid: img._id || `-${index}`,
+          //     name: `image-${index}.jpg`,
+          //     status: "done",
+          //     url: img.url,
+          //     type: img.type || "main",
+          //     _id: img._id,
+          //     thumbUrl: img.url,
+          //     typeNumber: typeNumber,
+          //   };
 
-            if (img.type === "description") {
-              descImages.push(fileObj);
-            } else if (img.type === "feature") {
-              featureImages.push(fileObj);
-            } else {
-              // Mặc định là main image
-              mainImages.push(fileObj);
-            }
-          });
+          //   if (img.type === "description") {
+          //     descImages.push(fileObj);
+          //   } else if (img.type === "feature") {
+          //     featureImages.push(fileObj);
+          //   } else {
+          //     // Mặc định là main image
+          //     mainImages.push(fileObj);
+          //   }
+          // });
 
           // Tạo mảng tổng hợp tất cả hình ảnh
-          const allImages = [...mainImages, ...descImages, ...featureImages];
+          // const allImages = [...mainImage, ...descImage, ...featureImage];
 
           // Cập nhật state cho các file list
-          setMainFileList(mainImages);
-          setDescFileList(descImages);
-          setFeatureFileList(featureImages);
-          setFileList(allImages);
+          // setMainFileList(mainImages);
+          // setDescFileList(descImages);
+          // setFeatureFileList(featureImages);
+          // setFileList(allImages);
 
           // Cập nhật mainImage nếu có ảnh chính
-          if (mainImages.length > 0) {
-            setMainImage(mainImages[0].url);
-          }
+          // if (mainImages.length > 0) {
+          //   setMainImage(mainImages[0].url);
+          // }
 
           form.setFieldsValue({
             ...productData,
-            mainFileList: mainImages,
-            descFileList: descImages,
-            featureFileList: featureImages,
-            images: allImages,
           });
         } catch (error) {
           console.error("Lỗi tải thông tin sản phẩm:", error);
@@ -139,30 +141,29 @@ export default function EditProduct() {
       // Lấy dữ liệu từ form
       const values = await form.validateFields();
 
-      const gioitinh =
-        values.tags.find((tag) => tag.startsWith("gioitinh_"))?.split("_")[1] ||
-        "";
-
-      const nongdoTag =
-        values.tags.find((tag) => tag.startsWith("nongdo_")) || "";
-      const nongdoMatch = nongdoTag.match(/\((.*?)\)/);
-      const nongdo = nongdoMatch ? nongdoMatch[1] : "";
-
-      const slug = slugify(`${gioitinh} ${values.name} ${nongdo}`, {
-        lower: true,
-      });
+      // const gioitinh =
+      //   values.tags.find((tag) => tag.startsWith("gioitinh_"))?.split("_")[1] ||
+      //   "";
+      // const nongdoTag =
+      //   values.tags.find((tag) => tag.startsWith("nongdo_")) || "";
+      // const nongdoMatch = nongdoTag.match(/\((.*?)\)/);
+      // const nongdo = nongdoMatch ? nongdoMatch[1] : "";
+      // const slug = slugify(`${gioitinh} ${values.name} ${nongdo}`, {
+      //   lower: true,
+      // });
 
       // Tạo object data sản phẩm
+
       const productData = {
         id: id,
-        name: values.name,
-        brandID: values.brandID,
-        description: values.description,
-        slug: slug,
+        // name: values.name,
+        // brandID: values.brandID,
+        // description: values.description,
+        // slug: slug,
         tags: values.tags,
         available: values.available,
         variants: values.variants || [],
-        images: values.images || [],
+        // images: values.images || [],
       };
 
       // // Xử lý hình ảnh mới (nếu có)
@@ -188,52 +189,51 @@ export default function EditProduct() {
       // }
 
       // Gọi API cập nhật sản phẩm
+      // console.log(values.images);
+      // if (values.images && values.images.length > 0) {
+      //   try {
+      //     const uploadPromises = values.images.map(async (file) => {
+      //       const isNew = !!file.originFileObj;
+      //       const fileType = file.type || "main";
+      //       const typeNumber =
+      //         fileType === "main" ? 1 : fileType === "description" ? 2 : 3;
 
-      console.log(values.images);
+      //       if (isNew) {
+      //         const base64 = await getBase64(file.originFileObj);
+      //         return {
+      //           file: base64,
+      //           type: fileType,
+      //           typeNumber,
+      //         };
+      //       } else {
+      //         // Trường hợp ảnh cũ, chỉ giữ lại thông tin đã có
+      //         return {
+      //           url: file.url,
+      //           type: fileType,
+      //           typeNumber,
+      //         };
+      //       }
+      //     });
 
-      if (values.images && values.images.length > 0) {
-        try {
-          const uploadPromises = values.images.map(async (file) => {
-            const isNew = !!file.originFileObj;
-            const fileType = file.type || "main";
-            const typeNumber =
-              fileType === "main" ? 1 : fileType === "description" ? 2 : 3;
+      //     const processedImages = await Promise.all(uploadPromises);
+      //     const validImages = processedImages.filter((img) => img !== null);
 
-            if (isNew) {
-              const base64 = await getBase64(file.originFileObj);
-              return {
-                file: base64,
-                type: fileType,
-                typeNumber,
-              };
-            } else {
-              // Trường hợp ảnh cũ, chỉ giữ lại thông tin đã có
-              return {
-                url: file.url,
-                type: fileType,
-                typeNumber,
-              };
-            }
-          });
+      //     productData.images = validImages;
 
-          const processedImages = await Promise.all(uploadPromises);
-          const validImages = processedImages.filter((img) => img !== null);
+      //     console.log(
+      //       "📦 Hình ảnh sau khi xử lý (ready to upload/send):",
+      //       validImages
+      //     );
+      //   } catch (uploadError) {
+      //     console.error("Lỗi xử lý hình ảnh:", uploadError);
+      //     message.error(
+      //       "Có lỗi xảy ra khi xử lý hình ảnh: " + uploadError.message
+      //     );
+      //     setLoading(false);
+      //     return;
+      //   }
+      // }
 
-          productData.images = validImages;
-
-          console.log(
-            "📦 Hình ảnh sau khi xử lý (ready to upload/send):",
-            validImages
-          );
-        } catch (uploadError) {
-          console.error("Lỗi xử lý hình ảnh:", uploadError);
-          message.error(
-            "Có lỗi xảy ra khi xử lý hình ảnh: " + uploadError.message
-          );
-          setLoading(false);
-          return;
-        }
-      }
       const updateResponse = await api.put(
         `/admin/manage-product/${id}`,
         productData
@@ -289,23 +289,14 @@ export default function EditProduct() {
       </div>
 
       <div className="product-form">
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={{
-            available: true,
-            variants: [
-              { capacity: "", price: 0, quantity: 0, available: true },
-            ],
-          }}
-        >
+        <Form form={form} layout="vertical">
           {/* Thông tin cơ bản và Hình ảnh */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             {/* Thông tin cơ bản */}
             <InfoCard form={form} />
 
             {/* Hình ảnh sản phẩm */}
-            <EditProductImagesCard
+            {/* <EditProductImagesCard
               form={form}
               initialFileList={fileList}
               onMainImageChange={(file) => {
@@ -323,6 +314,13 @@ export default function EditProduct() {
                   setMainImage("");
                 }
               }}
+            /> */}
+
+            <ViewProductImagesCard
+              form={form}
+              mainImage={mainImage}
+              descImage={descImage}
+              featImage={featImage}
             />
           </div>
 
@@ -335,7 +333,7 @@ export default function EditProduct() {
           />
 
           {/* Biến thể sản phẩm */}
-          <Card title="Biến thể sản phẩm" className="mb-10">
+          <Card title="Biến thể sản phẩm">
             <Form.List name="variants">
               {(fields, { add, remove }) => (
                 <>
@@ -345,12 +343,12 @@ export default function EditProduct() {
                         <h4 className="text-base font-medium">
                           Biến thể #{name + 1}
                         </h4>
-                        {fields.length > 1 && (
+                        {/* {fields.length > 1 && (
                           <MinusCircleOutlined
                             className="ml-2 text-red-500 cursor-pointer"
                             onClick={() => remove(name)}
                           />
-                        )}
+                        )} */}
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <Form.Item
@@ -364,7 +362,7 @@ export default function EditProduct() {
                             },
                           ]}
                         >
-                          <Input placeholder="Ví dụ: 50ml, 100ml" />
+                          <Input placeholder="Ví dụ: 50ml, 100ml" readOnly />
                         </Form.Item>
                         <Form.Item
                           {...restField}
@@ -382,6 +380,7 @@ export default function EditProduct() {
                               `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                             }
                             parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
+                            readOnly
                           />
                         </Form.Item>
                         <Form.Item
@@ -399,6 +398,7 @@ export default function EditProduct() {
                             min={0}
                             placeholder="Số lượng"
                             style={{ width: "100%" }}
+                            readOnly
                           />
                         </Form.Item>
                         <Form.Item
@@ -422,6 +422,7 @@ export default function EditProduct() {
                       onClick={() => add()}
                       block
                       icon={<PlusOutlined />}
+                      disabled
                     >
                       Thêm biến thể
                     </Button>

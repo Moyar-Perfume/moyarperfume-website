@@ -19,6 +19,10 @@ const ProductNhanhvnSchema = new mongoose.Schema(
     variants: [VariantSchema],
     description: { type: String },
     content: { type: String },
+    nhanhBrandID: { type: String },
+    showHot: { type: Boolean, default: false },
+    showNew: { type: Boolean, default: false },
+    showHome: { type: Boolean, default: false },
     brandID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Brand",

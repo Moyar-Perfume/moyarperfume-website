@@ -27,7 +27,7 @@ const InfoCard = ({ form }) => {
         label="Tên sản phẩm"
         rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm!" }]}
       >
-        <Input placeholder="Nhập tên sản phẩm" />
+        <Input placeholder="Nhập tên sản phẩm" readOnly />
       </Form.Item>
 
       <Form.Item
@@ -40,23 +40,24 @@ const InfoCard = ({ form }) => {
           },
         ]}
       >
-        <Select
+        {/* <Select
           placeholder="Chọn thương hiệu"
           options={brandOptions}
           loading={loading}
-          disabled={loading || error}
+          disabled={true}
           onChange={handleBrandChange}
           showSearch
           optionFilterProp="label"
-          filterOption={
-            (input, option) =>
-              (option?.label ?? "").toLowerCase().includes(input.toLowerCase()) // Lọc các thương hiệu theo tên
+          filterOption={(input, option) =>
+            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
           }
-        />
+        /> */}
+
+        <Input placeholder="Thương hiệu của sản phẩm" readOnly />
       </Form.Item>
 
       <Form.Item
-        name="description"
+        name="content"
         label="Mô tả sản phẩm"
         rules={[
           {
@@ -69,6 +70,8 @@ const InfoCard = ({ form }) => {
           placeholder="Nhập mô tả sản phẩm"
           autoSize={{ minRows: 3, maxRows: 6 }}
         />
+
+        {/* <Input placeholder="Mô tả sản phẩm" readOnly /> */}
       </Form.Item>
 
       <Form.Item

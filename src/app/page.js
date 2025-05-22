@@ -70,7 +70,7 @@ const bestsellerProduct = [
     slug: "https://shopee.vn/10ml-Pure-Musc-Nar-tr%E1%BA%AFng-N%C6%B0%E1%BB%9Bc-hoa-n%E1%BB%AF-i.422771282.16657082469?sp_atk=44c9cd02-9c85-4e56-9431-baf0469819c4&xptdk=44c9cd02-9c85-4e56-9431-baf0469819c4",
     tags: ["shadow_207 209 213"],
     price: 0,
-    images: [{ url: "/product/product-01.png" }],
+    mainImage: "/product/product-01.png",
     variants: [
       { capacity: "10ml", price: 0, available: true },
       { capacity: "Fullseal", price: 0, available: true },
@@ -83,7 +83,7 @@ const bestsellerProduct = [
     slug: "https://shopee.vn/10ml-Montblanc-Signature-N%C6%B0%E1%BB%9Bc-hoa-n%E1%BB%AF-Moyar-Perfume-i.422771282.15588612866",
     tags: ["shadow_222 222 222"],
     price: 0,
-    images: [{ url: "/product/product-02.png" }],
+    mainImage: "/product/product-02.png",
     variants: [
       { capacity: "10ml", price: 0, available: true },
       { capacity: "Fullseal", price: 0, available: true },
@@ -96,7 +96,7 @@ const bestsellerProduct = [
     slug: "https://shopee.vn/10ml-Elizabeth-Arden-White-Tea-EDT-N%C6%B0%E1%BB%9Bc-hoa-n%E1%BB%AF-i.422771282.22152721778",
     tags: ["shadow_246 244 242"],
     price: 0,
-    images: [{ url: "/product/product-03.png" }],
+    mainImage: "/product/product-03.png",
     variants: [
       { capacity: "10ml", price: 0, available: true },
       { capacity: "Fullseal", price: 0, available: true },
@@ -109,7 +109,7 @@ const bestsellerProduct = [
     slug: "https://shopee.vn/10ml-%E2%80%A2-Bright-Crystal-Versace-N%C6%B0%E1%BB%9Bc-hoa-n%E1%BB%AF-i.422771282.9879316410",
     tags: ["shadow_228 166 192"],
     price: 0,
-    images: [{ url: "/product/product-04.png" }],
+    mainImage: "/product/product-04.png",
     variants: [
       { capacity: "10ml", price: 0, available: true },
       { capacity: "Fullseal", price: 0, available: true },
@@ -122,7 +122,7 @@ const bestsellerProduct = [
     slug: "https://shopee.vn/10ml-Nar-Rodriguez-for-Her-EDP-(-h%E1%BB%93ng-nh%E1%BA%A1t-)-N%C6%B0%E1%BB%9Bc-hoa-n%E1%BB%AF-i.422771282.13114211594",
     tags: ["shadow_246 202 196"],
     price: 0,
-    images: [{ url: "/product/product-05.png" }],
+    mainImage: "/product/product-05.png",
     variants: [
       { capacity: "10ml", price: 0, available: true },
       { capacity: "Fullseal", price: 0, available: true },
@@ -138,7 +138,7 @@ const newestProduct = [
     slug: "https://shopee.vn/10ml-Kira-Matcha-Latte-N%C6%B0%E1%BB%9Bc-hoa-unisex-Moyar-Perfume-i.422771282.26283877129",
     tags: ["shadow_185 177 83"],
     price: 0,
-    images: [{ url: "/product/product-06.png" }],
+    mainImage: "/product/product-06.png",
     variants: [
       { capacity: "10ml", price: 0, available: true },
       { capacity: "Fullseal", price: 0, available: true },
@@ -151,7 +151,7 @@ const newestProduct = [
     slug: "https://shopee.vn/10ml-Kira-Rice-Milk-N%C6%B0%E1%BB%9Bc-hoa-unisex-Moyar-Perfume-i.422771282.29233872269",
     tags: ["shadow_212 186 152"],
     price: 0,
-    images: [{ url: "/product/product-07.png" }],
+    mainImage: "/product/product-07.png",
     variants: [
       { capacity: "10ml", price: 0, available: true },
       { capacity: "Fullseal", price: 0, available: true },
@@ -164,7 +164,7 @@ const newestProduct = [
     slug: "https://shopee.vn/10ml-Kira-Coffeelling-N%C6%B0%E1%BB%9Bc-hoa-unisex-Moyar-Perfume-i.422771282.27083872275",
     tags: ["shadow_166 123 107"],
     price: 0,
-    images: [{ url: "/product/product-08.png" }],
+    mainImage: "/product/product-08.png",
     variants: [
       { capacity: "10ml", price: 0, available: true },
       { capacity: "Fullseal", price: 0, available: true },
@@ -177,7 +177,7 @@ const newestProduct = [
     slug: "https://shopee.vn/10ml-Fragrance-World-Spectre-Wraith-N%C6%B0%E1%BB%9Bc-hoa-nam-Moyar-Perfume-i.422771282.28833809256",
     tags: ["shadow_39 39 39"],
     price: 0,
-    images: [{ url: "/product/product-09.png" }],
+    mainImage: "/product/product-09.png",
     variants: [
       { capacity: "10ml", price: 0, available: true },
       { capacity: "Fullseal", price: 0, available: true },
@@ -190,7 +190,7 @@ const newestProduct = [
     slug: "https://shopee.vn/10ml-Fragrance-World-Spectre-Ghost-N%C6%B0%E1%BB%9Bc-hoa-nam-Moyar-Perfume-i.422771282.24544190006",
     tags: ["shadow_147 132 126"],
     price: 0,
-    images: [{ url: "/product/product-10.png" }],
+    mainImage: "/product/product-10.png",
     variants: [
       { capacity: "10ml", price: 0, available: true },
       { capacity: "Fullseal", price: 0, available: true },
@@ -646,8 +646,8 @@ export default function Home() {
                 hoveredCategory === "men" ? "opacity-100" : "opacity-80"
               }`}
             >
-              An introduction to the layers of fragrance notes, accords, and
-              families that make up the symphony of each scent.
+              Men Parfum mang hương gỗ, gia vị và xạ hương đậm nét, thường tạo
+              cảm giác mạnh mẽ, sâu lắng và đầy cuốn hút.
             </p>
           </div>
 
@@ -659,7 +659,7 @@ export default function Home() {
           >
             <div className="w-full max-w-[600px] xl:max-w-full h-[250px] sm:h-[300px] md:h-[350px] relative overflow-hidden">
               <Image
-                src="/category/women.png"
+                src="/category/women.jpg"
                 alt="Women Parfum"
                 fill
                 sizes="(max-width: 1280px) 90vw, 33vw"
@@ -700,9 +700,8 @@ export default function Home() {
                 hoveredCategory === "women" ? "opacity-100" : "opacity-80"
               }`}
             >
-              Niche perfumery is the rebellious child of the fragrance world,
-              growing in popularity each year. But what sets it apart from
-              mainstream brands found in most perfume shops?
+              Women Parfum thường mang hương hoa, trái cây và hương phấn, nhẹ
+              nhàng, tinh tế và dễ tạo cảm giác gần gũi.
             </p>
           </div>
 
@@ -714,7 +713,7 @@ export default function Home() {
           >
             <div className="w-full max-w-[600px] xl:max-w-full h-[250px] sm:h-[300px] md:h-[350px] relative overflow-hidden">
               <Image
-                src="/category/unisex.png"
+                src="/category/unisex.jpg"
                 alt="Unisex Parfum"
                 fill
                 sizes="(max-width: 1280px) 90vw, 33vw"
@@ -755,8 +754,8 @@ export default function Home() {
                 hoveredCategory === "unisex" ? "opacity-100" : "opacity-80"
               }`}
             >
-              An introduction to the layers of fragrance notes, accords, and
-              families that make up the symphony of each scent.
+              Unisex Parfum cân bằng giữa hương tươi mát và trầm ấm, tạo nên
+              phong cách hiện đại, trung tính và linh hoạt.
             </p>
           </div>
         </div>

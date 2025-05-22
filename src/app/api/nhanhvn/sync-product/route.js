@@ -6,21 +6,14 @@ import slugify from "slugify";
 import { connectDB } from "@/libs/mongoDB";
 import { splitNameAndCapacity } from "@/utils/splitNameAndCapacity";
 
-// ----------------------- Helpers -----------------------
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const fetchNhanhvnProducts = async () => {
   let page = 1;
   const allProducts = {};
 
-  console.log("🔁 Bắt đầu lấy dữ liệu từ Nhanh.vn...");
-
   while (true) {
-    console.log(`📦 Đang lấy trang ${page}...`);
-    const dataPayload = {
-      page,
-      icpp: 100,
-    };
+    const dataPayload = { page, icpp: 100 };
 
     const formData = new URLSearchParams();
     formData.append("accessToken", process.env.ACCESS_TOKEN);
@@ -32,16 +25,10 @@ const fetchNhanhvnProducts = async () => {
     const res = await axios.post(
       "https://open.nhanh.vn/api/product/search",
       formData,
-      {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      }
+      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
     );
 
     const { products = {}, totalPages = 1 } = res.data?.data || {};
-    console.log(
-      `✅ Trang ${page} lấy được ${Object.keys(products).length} sản phẩm.`
-    );
-
     Object.assign(allProducts, products);
 
     if (page >= totalPages) break;
@@ -49,16 +36,11 @@ const fetchNhanhvnProducts = async () => {
     await sleep(1000);
   }
 
-  console.log(
-    `🎯 Tổng số sản phẩm lấy được: ${Object.keys(allProducts).length}`
-  );
   return allProducts;
 };
 
 const groupProductsByBaseName = (products) => {
-  console.log("🔍 Bắt đầu gom nhóm theo tên sản phẩm...");
   const grouped = {};
-
   for (const key in products) {
     const p = products[key];
     const { baseName, capacity } = splitNameAndCapacity(p.name);
@@ -73,24 +55,17 @@ const groupProductsByBaseName = (products) => {
       image: p.image || "",
       images: p.images || [],
       brandName: p.brandName || "",
+      nhanhBrandID: p.brandId || "",
+      showHot: p.showHot === 1,
+      showNew: p.showNew === 1,
+      showHome: p.showHome === 1,
     });
   }
-
-  console.log(
-    `🧾 Số nhóm sản phẩm sau khi xử lý: ${Object.keys(grouped).length}`
-  );
   return grouped;
 };
 
-let detailFetchCount = 0;
-
 const fetchProductDetail = async (productId) => {
   try {
-    detailFetchCount++;
-    console.log(
-      `🔍 [${detailFetchCount}] Fetch chi tiết sản phẩm ID: ${productId}`
-    );
-
     const formData = new URLSearchParams();
     formData.append("accessToken", process.env.ACCESS_TOKEN);
     formData.append("version", process.env.API_VERSION);
@@ -101,32 +76,26 @@ const fetchProductDetail = async (productId) => {
     const res = await axios.post(
       "https://open.nhanh.vn/api/product/detail",
       formData,
-      {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      }
+      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
     );
 
-    const productDetail = res.data?.data?.[productId];
-    const content = productDetail?.content || "";
+    const detail = res.data?.data?.[productId];
 
-    return content;
+    console.log("Đang lấy sản phẩm: " + productId);
+    return detail?.content || "";
   } catch (err) {
-    console.error(
-      `❌ Lỗi khi fetch chi tiết sản phẩm ${productId}:`,
-      err.message
-    );
+    console.error(`❌ Lỗi lấy chi tiết sản phẩm ${productId}:`, err.message);
     return "";
   }
 };
 
 const saveGroupedProductsToDB = async (grouped) => {
-  console.log("💾 Bắt đầu lưu vào database...");
   let count = 0;
-  const delayBetweenCalls = 400;
+  const delay = 400;
 
   for (const baseName in grouped) {
-    const slug = slugify(baseName, { lower: true });
     const productGroup = grouped[baseName];
+    const slug = slugify(baseName, { lower: true });
 
     const variants = productGroup.map((v) => ({
       nhanhID: v.nhanhID,
@@ -136,39 +105,40 @@ const saveGroupedProductsToDB = async (grouped) => {
       available: v.quantity > 0,
     }));
 
-    // Tìm biến thể 10ml nếu có
-    const tenMlVariant =
+    let mainVariant =
       productGroup.find((v) => v.capacity === "10ml") ||
-      productGroup.find((v) => v.capacity.toLowerCase().includes("chiết 10ml"));
+      productGroup.find((v) =>
+        v.capacity?.toLowerCase().includes("chiết 10ml")
+      ) ||
+      productGroup[0];
 
-    // Nếu không có 10ml thì để ảnh rỗng
-    const mainImage = tenMlVariant ? tenMlVariant.image || "" : "";
-    const subImages = tenMlVariant ? tenMlVariant.images || [] : [];
-    const brandName = tenMlVariant ? tenMlVariant.brandName : "";
-    const nhanhID = tenMlVariant ? tenMlVariant.nhanhID : "";
+    const mainImage = mainVariant.image || "";
+    const subImages = mainVariant.images || [];
+    const nhanhBrandID = mainVariant.nhanhBrandID;
+    const nhanhID = mainVariant.nhanhID;
 
     let brandID = null;
-
-    if (brandName) {
-      const brandSlug = slugify(brandName, { lower: true });
+    if (mainVariant.brandName) {
+      const brandSlug = slugify(mainVariant.brandName, { lower: true });
       let brand = await Brand.findOne({ slug: brandSlug });
-
       if (!brand) {
         try {
-          brand = await Brand.create({ name: brandName, slug: brandSlug });
-          console.log("✅ Tạo brand mới:", brandName);
+          brand = await Brand.create({
+            name: mainVariant.brandName,
+            slug: brandSlug,
+            nhanhID: nhanhBrandID || "",
+          });
+          console.log("✅ Tạo brand mới:", mainVariant.brandName);
         } catch (err) {
-          console.error("❌ Không thể tạo brand:", brandName, "-", err.message);
+          console.error("❌ Lỗi tạo brand:", err.message);
         }
-      } else {
-        console.log("⏭️ Brand đã tồn tại:", brandName);
       }
       brandID = brand?._id || null;
     }
 
-    await sleep(delayBetweenCalls);
-    const description = nhanhID ? await fetchProductDetail(nhanhID) : "";
+    const content = nhanhID ? await fetchProductDetail(nhanhID) : "";
 
+    await sleep(delay);
     await ProductNhanhvn.findOneAndUpdate(
       { slug },
       {
@@ -177,34 +147,34 @@ const saveGroupedProductsToDB = async (grouped) => {
         variants,
         mainImage,
         subImages,
+        nhanhBrandID,
         brandID,
         available: true,
-        description,
+        description: "",
+        content: content,
+        showHot: mainVariant.showHot,
+        showNew: mainVariant.showNew,
+        showHome: mainVariant.showHome,
       },
       { upsert: true, new: true }
     );
 
     count++;
-    if (count % 50 === 0) console.log(`📥 Đã lưu ${count} sản phẩm...`);
+    if (count % 50 === 0) console.log(`📦 Đã xử lý ${count} sản phẩm...`);
   }
 
-  console.log(`✅ Hoàn tất lưu ${count} nhóm sản phẩm.`);
+  console.log(`🎯 Đã lưu xong ${count} sản phẩm nhóm.`);
 };
 
-// ---------------------- Main Handler ----------------------
 export async function POST() {
   try {
     await connectDB();
-    console.log("🔌 Đã kết nối database.");
-
     const allProducts = await fetchNhanhvnProducts();
     const grouped = groupProductsByBaseName(allProducts);
     await saveGroupedProductsToDB(grouped);
-
-    console.log("🎉 Đồng bộ toàn bộ sản phẩm hoàn tất.");
     return NextResponse.json({ message: "Đồng bộ thành công!" });
-  } catch (error) {
-    console.error("❌ SYNC ERROR:", error?.response?.data || error.message);
+  } catch (err) {
+    console.error("❌ Đồng bộ lỗi:", err?.response?.data || err.message);
     return NextResponse.json(
       { message: "Lỗi đồng bộ sản phẩm" },
       { status: 500 }

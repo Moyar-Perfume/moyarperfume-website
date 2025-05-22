@@ -4,68 +4,68 @@ import Product from "@/models/Product";
 import cloudinary from "@/libs/cloudinary";
 import ProductNhanhvn from "@/models/ProductNhanhvn";
 
-export const routeSegmentConfig = {
-  api: {
-    bodyParser: {
-      sizeLimit: "20mb",
-    },
-  },
-};
+// export const routeSegmentConfig = {
+//   api: {
+//     bodyParser: {
+//       sizeLimit: "20mb",
+//     },
+//   },
+// };
 
 // Xử lý yêu cầu DELETE
-export async function DELETE(req, { params }) {
-  try {
-    await connectDB();
+// export async function DELETE(req, { params }) {
+//   try {
+//     await connectDB();
 
-    const { id } = params;
+//     const { id } = params;
 
-    const product = await ProductNhanhvn.findById(id);
+//     const product = await ProductNhanhvn.findById(id);
 
-    if (!product) {
-      return NextResponse.json(
-        { error: "Không tìm thấy sản phẩm!" },
-        { status: 404 }
-      );
-    }
+//     if (!product) {
+//       return NextResponse.json(
+//         { error: "Không tìm thấy sản phẩm!" },
+//         { status: 404 }
+//       );
+//     }
 
-    const folderPath = "products/" + id;
+//     const folderPath = "products/" + id;
 
-    try {
-      // 1. Lấy danh sách tất cả public_id trong folder
-      const listResult = await cloudinary.v2.api.resources({
-        type: "upload",
-        prefix: folderPath + "/", // rất quan trọng
-        max_results: 100,
-      });
+//     try {
+//       // 1. Lấy danh sách tất cả public_id trong folder
+//       const listResult = await cloudinary.v2.api.resources({
+//         type: "upload",
+//         prefix: folderPath + "/", // rất quan trọng
+//         max_results: 100,
+//       });
 
-      const publicIds = listResult.resources.map((res) => res.public_id);
+//       const publicIds = listResult.resources.map((res) => res.public_id);
 
-      // 2. Xóa toàn bộ ảnh trong folder nếu có
-      if (publicIds.length > 0) {
-        await cloudinary.v2.api.delete_resources(publicIds);
-      }
+//       // 2. Xóa toàn bộ ảnh trong folder nếu có
+//       if (publicIds.length > 0) {
+//         await cloudinary.v2.api.delete_resources(publicIds);
+//       }
 
-      // 3. Xóa folder sau khi ảnh đã bị xóa
-      await cloudinary.v2.api.delete_folder(folderPath);
-    } catch (error) {
-      console.error("Lỗi khi xóa folder Cloudinary:", error);
-    }
+//       // 3. Xóa folder sau khi ảnh đã bị xóa
+//       await cloudinary.v2.api.delete_folder(folderPath);
+//     } catch (error) {
+//       console.error("Lỗi khi xóa folder Cloudinary:", error);
+//     }
 
-    const deletedProduct = await Product.findByIdAndDelete(id);
+//     const deletedProduct = await Product.findByIdAndDelete(id);
 
-    return NextResponse.json({
-      success: true,
-      message: "Đã xóa thương hiệu và hình ảnh thành công",
-      deletedProduct,
-    });
-  } catch (error) {
-    console.error("Error deleting brand:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
-  }
-}
+//     return NextResponse.json({
+//       success: true,
+//       message: "Đã xóa thương hiệu và hình ảnh thành công",
+//       deletedProduct,
+//     });
+//   } catch (error) {
+//     console.error("Error deleting brand:", error);
+//     return NextResponse.json(
+//       { error: "Internal Server Error" },
+//       { status: 500 }
+//     );
+//   }
+// }
 
 export async function GET(req, { params }) {
   await connectDB();
@@ -106,56 +106,56 @@ export async function PUT(req, { params }) {
     const updateData = await req.json();
     updateData.updatedAt = new Date();
 
-    const imagesFromClient = updateData.images || [];
-    const uploadedImages = [];
+    // const imagesFromClient = updateData.images || [];
+    // const uploadedImages = [];
 
-    for (let i = 0; i < imagesFromClient.length; i++) {
-      const { file, type, typeNumber, url, public_id } = imagesFromClient[i];
+    // for (let i = 0; i < imagesFromClient.length; i++) {
+    //   const { file, type, typeNumber, url, public_id } = imagesFromClient[i];
 
-      // Nếu là ảnh cũ (có url và public_id), giữ lại
-      if (!file && url) {
-        uploadedImages.push({
-          url,
-          public_id,
-          type,
-          typeNumber,
-        });
-        continue;
-      }
+    //   // Nếu là ảnh cũ (có url và public_id), giữ lại
+    //   if (!file && url) {
+    //     uploadedImages.push({
+    //       url,
+    //       public_id,
+    //       type,
+    //       typeNumber,
+    //     });
+    //     continue;
+    //   }
 
-      // Lấy base64 từ file mới
-      const base64Data = file;
-      if (!base64Data) continue;
+    //   // Lấy base64 từ file mới
+    //   const base64Data = file;
+    //   if (!base64Data) continue;
 
-      // // Resize theo loại ảnh
-      // let width = 1200;
-      // let height = 1200;
-      // if (typeNumber === 2) {
-      //   width = 900;
-      //   height = 500;
-      // } else if (typeNumber === 3) {
-      //   width = 800;
-      //   height = 900;
-      // }
+    //   // // Resize theo loại ảnh
+    //   let width = 1200;
+    //   let height = 1200;
+    //   if (typeNumber === 2) {
+    //     width = 900;
+    //     height = 500;
+    //   } else if (typeNumber === 3) {
+    //     width = 800;
+    //     height = 900;
+    //   }
 
-      // Upload lên Cloudinary
-      const uploadRes = await cloudinary.v2.uploader.upload(base64Data, {
-        folder: `products/${id}`,
-        public_id: `${id}-${typeNumber}`,
-        // overwrite: true,
-        // transformation: [{ width, height, crop: "fill", gravity: "auto" }],
-      });
+    //   // Upload lên Cloudinary
+    //   const uploadRes = await cloudinary.v2.uploader.upload(base64Data, {
+    //     folder: `products/${id}`,
+    //     public_id: `${id}-${typeNumber}`,
+    //     // overwrite: true,
+    //     // transformation: [{ width, height, crop: "fill", gravity: "auto" }],
+    //   });
 
-      uploadedImages.push({
-        url: uploadRes.secure_url,
-        public_id: uploadRes.public_id,
-        type,
-        typeNumber,
-      });
-    }
+    //   uploadedImages.push({
+    //     url: uploadRes.secure_url,
+    //     public_id: uploadRes.public_id,
+    //     type,
+    //     typeNumber,
+    //   });
+    // }
 
     // Gán lại danh sách ảnh
-    updateData.images = uploadedImages;
+    // updateData.images = uploadedImages;
 
     // Cập nhật vào MongoDB
     const updatedProduct = await ProductNhanhvn.findByIdAndUpdate(

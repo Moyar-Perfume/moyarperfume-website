@@ -9,14 +9,7 @@ import api from "@/constants/apiURL";
 
 export default function ManageProduct() {
   const router = useRouter();
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchText, setSearchText] = useState("");
-
-  // Thêm state cho modal xóa
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [productToDelete, setProductToDelete] = useState(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Thêm state cho loading trạng thái available
   const [availableLoading, setAvailableLoading] = useState({});
@@ -49,19 +42,26 @@ export default function ManageProduct() {
         `/admin/manage-product?${queryParams.toString()}`
       );
 
-      const { products, pagination: responsePagination } = response.data;
+      const { products, pagination, message } = response.data;
 
-      console.log(products);
-
-      const { currentPage, totalPages, totalProducts } = responsePagination;
-
-      setProductList(products || []);
-      setPagination({
-        currentPage,
-        totalPages,
-        totalProducts,
-        hasMore: currentPage < totalPages,
-      });
+      if (message === "No Product Found") {
+        setProductList([]);
+        setPagination({
+          currentPage: 1,
+          totalPages: 0,
+          totalProducts: 0,
+          hasMore: false,
+        });
+      } else {
+        const { currentPage, totalPages, totalProducts } = pagination;
+        setProductList(products || []);
+        setPagination({
+          currentPage,
+          totalPages,
+          totalProducts,
+          hasMore: currentPage < totalPages,
+        });
+      }
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -80,74 +80,9 @@ export default function ManageProduct() {
     }
   };
 
-  const formattedProducts = useMemo(() => {
-    if (!productList || !Array.isArray(productList)) {
-      return [];
-    }
-
-    return productList.map((product) => ({
-      id: product._id,
-      name: product.name,
-      tags: product.tags,
-      quantity: product.quantity,
-      updatedAt: product.updatedAt,
-      slug: product.slug,
-      mainImage: product.mainImage,
-      subImages: product.subImages,
-      images: product.images,
-      variants: product.variants,
-      brand: product.brandID?.name,
-      available: product.available,
-    }));
-  }, [productList]);
-
-  // Cập nhật useEffect để lọc sản phẩm
-  useEffect(() => {
-    if (formattedProducts.length > 0) {
-      setFilteredProducts(formattedProducts);
-    }
-  }, [formattedProducts]);
-
   // Xử lý thêm sản phẩm mới
   const navigateToAddProduct = () => {
     router.push("/admin/manage-product/add-product");
-  };
-
-  //// Các hàm xóa sản phẩm
-  // Thêm hàm xử lý xóa sản phẩm
-  const handleDeleteProduct = async () => {
-    if (!productToDelete) return;
-
-    setDeleteLoading(true);
-    try {
-      await api.delete(`admin/manage-product/${productToDelete.id}`);
-
-      setProducts(
-        products.filter((product) => product.id !== productToDelete.id)
-      );
-      setFilteredProducts(
-        filteredProducts.filter((product) => product.id !== productToDelete.id)
-      );
-
-      message.success(`Đã xóa sản phẩm "${productToDelete.name}" thành công!`);
-    } catch (error) {
-      console.error("Lỗi khi xóa sản phẩm:", error);
-      message.error("Có lỗi xảy ra khi xóa sản phẩm!");
-    } finally {
-      setDeleteLoading(false);
-      setDeleteModalVisible(false);
-      setProductToDelete(null);
-    }
-  };
-  // Hàm mở modal xác nhận xóa
-  const showDeleteConfirm = (product) => {
-    setProductToDelete(product);
-    setDeleteModalVisible(true);
-  };
-  // Hàm đóng modal xác nhận
-  const handleCancelDelete = () => {
-    setDeleteModalVisible(false);
-    setProductToDelete(null);
   };
 
   // Hàm xử lý chuyển đổi trạng thái available của sản phẩm
@@ -172,8 +107,8 @@ export default function ManageProduct() {
       // Cập nhật UI sau khi API thành công
       if (response.status === 200) {
         // Tạo bản sao của mảng sản phẩm để cập nhật
-        const updatedProducts = [...filteredProducts].map((product) => {
-          if (product.id === productId) {
+        const updatedProducts = [...productList].map((product) => {
+          if (product._id === productId) {
             if (isVariant && variantId) {
               // Cập nhật available cho variant
               return {
@@ -192,7 +127,7 @@ export default function ManageProduct() {
           return product;
         });
 
-        setFilteredProducts(updatedProducts);
+        setProductList(updatedProducts);
 
         message.success(
           `Đã ${!currentStatus ? "bật" : "tắt"} trạng thái hiển thị cho ${
@@ -209,6 +144,49 @@ export default function ManageProduct() {
       setAvailableLoading((prev) => ({ ...prev, [loadingKey]: false }));
     }
   };
+
+  // const [filteredProducts, setFilteredProducts] = useState([]);
+  // Thêm state cho modal xóa
+  // const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  // const [productToDelete, setProductToDelete] = useState(null);
+  // const [deleteLoading, setDeleteLoading] = useState(false);
+  // const [products, setProducts] = useState([]);
+  //// Các hàm xóa sản phẩm
+  // Thêm hàm xử lý xóa sản phẩm
+  // const handleDeleteProduct = async () => {
+  //   if (!productToDelete) return;
+
+  //   setDeleteLoading(true);
+  //   try {
+  //     await api.delete(`admin/manage-product/${productToDelete.id}`);
+
+  //     setProducts(
+  //       products.filter((product) => product.id !== productToDelete.id)
+  //     );
+  //     setFilteredProducts(
+  //       filteredProducts.filter((product) => product.id !== productToDelete.id)
+  //     );
+
+  //     message.success(`Đã xóa sản phẩm "${productToDelete.name}" thành công!`);
+  //   } catch (error) {
+  //     console.error("Lỗi khi xóa sản phẩm:", error);
+  //     message.error("Có lỗi xảy ra khi xóa sản phẩm!");
+  //   } finally {
+  //     setDeleteLoading(false);
+  //     setDeleteModalVisible(false);
+  //     setProductToDelete(null);
+  //   }
+  // };
+  // Hàm mở modal xác nhận xóa
+  // const showDeleteConfirm = (product) => {
+  //   setProductToDelete(product);
+  //   setDeleteModalVisible(true);
+  // };
+  // Hàm đóng modal xác nhận
+  // const handleCancelDelete = () => {
+  //   setDeleteModalVisible(false);
+  //   setProductToDelete(null);
+  // };
 
   // // Tạo helper function để lấy hình ảnh theo type
   // const getImageByType = (images, type) => {
@@ -229,6 +207,7 @@ export default function ManageProduct() {
             type="primary"
             onClick={navigateToAddProduct}
             className="bg-blue-500 hover:bg-blue-600"
+            disabled
           >
             Thêm sản phẩm
           </Button>
@@ -317,7 +296,7 @@ export default function ManageProduct() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-sm font-medium text-black tracking-wider bg-gray-200">
-                Tên sản phẩm
+                Sản phẩm
               </th>
               <th className="px-6 py-3 text-left text-sm font-medium text-black tracking-wider bg-gray-200">
                 Kho hàng
@@ -335,8 +314,8 @@ export default function ManageProduct() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map((product) => {
+            {productList.length > 0 ? (
+              productList.map((product) => {
                 // Lấy danh sách giá từ variants
                 const variantPrices = product.variants.map((v) => v.price);
 
@@ -355,22 +334,48 @@ export default function ManageProduct() {
                     : "-";
 
                 return (
-                  <React.Fragment key={product.id}>
+                  <React.Fragment key={product._id}>
                     {/* Hàng chính của sản phẩm */}
                     <tr className="hover:bg-gray-50 border border-b-0">
                       <td className="px-4 py-2 text-xs text-black align-top w-1/5">
                         <div className="flex items-center space-x-2">
-                          <div className="min-w-[50px] min-h-[50px] relative">
-                            {console.log(product)}
-                            <Image
-                              src={product.mainImage}
-                              fill
-                              alt={`Hình ${product.slug}`}
-                              className="object-contain"
-                            />
+                          <div className="min-w-[50px] min-h-[50px] max-w-[60px] max-h-[60px] relative">
+                            {product.mainImage ? (
+                              <Image
+                                src={product.mainImage}
+                                alt={`Hình ${product.slug}`}
+                                fill
+                                className="object-contain"
+                              />
+                            ) : (
+                              <div className=" flex items-center justify-center w-full h-full py-4">
+                                <a
+                                  className=" text-gray-500 "
+                                  target="_blank"
+                                  href={`https://nhanh.vn/product/item/index?name=${product.name}&businessId=200798 `}
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="size-5"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                    />
+                                  </svg>
+                                </a>
+                              </div>
+                            )}
                           </div>
-                          <span className="font-semibold line-clamp-2 ">
-                            {product.brand} - {product.name}
+                          <span className="font-semibold line-clamp-2">
+                            {product.brandID
+                              ? `${product.brandID.name} - ${product.name}`
+                              : product.name}
                           </span>
                         </div>
                       </td>
@@ -386,9 +391,12 @@ export default function ManageProduct() {
                         <Switch
                           checked={product.available}
                           onChange={() =>
-                            handleToggleAvailable(product.id, product.available)
+                            handleToggleAvailable(
+                              product._id,
+                              product.available
+                            )
                           }
-                          loading={availableLoading[product.id]}
+                          loading={availableLoading[product._id]}
                           size="small"
                         />
                       </td>
@@ -400,8 +408,9 @@ export default function ManageProduct() {
                       <td className="px-4 py-2 whitespace-nowrap text-xs font-medium w-1/5 align-center">
                         <div className="grid items-start justify-start">
                           <a
-                            href={`/admin/manage-product/edit/${product.id}`}
+                            href={`/admin/manage-product/edit/${product._id}`}
                             className="text-indigo-600 hover:text-indigo-900"
+                            target="_blank"
                           >
                             Sửa
                           </a>
@@ -433,14 +442,16 @@ export default function ManageProduct() {
                               checked={variant.available}
                               onChange={() =>
                                 handleToggleAvailable(
-                                  product.id,
+                                  product._id,
                                   variant.available,
                                   true,
                                   variant._id
                                 )
                               }
                               loading={
-                                availableLoading[`${product.id}_${variant._id}`]
+                                availableLoading[
+                                  `${product._id}_${variant._id}`
+                                ]
                               }
                               size="small"
                             />

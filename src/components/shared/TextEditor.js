@@ -45,7 +45,7 @@ export default function TextEditor({ value, onChange, className, disabled }) {
       modules={modules}
       formats={formats}
       className={`w-full pb-0 mb-0 h-full ${className || ""}`}
-      readOnly={disabled}
+      readOnly={true}
     />
   );
 }

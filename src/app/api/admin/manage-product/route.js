@@ -97,11 +97,10 @@ export async function GET(req) {
     const limit = parseInt(searchParams.get("limit") || "12");
     const skip = (page - 1) * limit;
 
-    const searchQuery = searchParams.get("search")?.trim() || "";
+    const searchQuery = searchParams.get("search") || "";
 
     let brandIDs = [];
 
-    // Tìm tất cả brand có chứa từ khóa trong tên
     if (searchQuery) {
       const matchedBrands = await Brand.find({
         name: { $regex: searchQuery, $options: "i" },
@@ -110,11 +109,10 @@ export async function GET(req) {
       brandIDs = matchedBrands.map((brand) => brand._id);
     }
 
-    // Điều kiện tìm kiếm
     const searchCondition = {
       $or: [
-        { name: { $regex: searchQuery, $options: "i" } }, // theo tên sản phẩm
-        { brandID: { $in: brandIDs } }, // theo brand khớp
+        { name: { $regex: searchQuery, $options: "i" } },
+        { brandID: { $in: brandIDs } },
       ],
     };
 
@@ -127,6 +125,24 @@ export async function GET(req) {
       .limit(limit)
       .populate("brandID", "name");
 
+    // ✅ Trường hợp không có sản phẩm
+    if (products.length === 0) {
+      return NextResponse.json(
+        {
+          message: "No Product Found",
+          products: [],
+          pagination: {
+            currentPage: page,
+            totalPages: 0,
+            totalProducts: 0,
+            hasMore: false,
+          },
+        },
+        { status: 200 }
+      );
+    }
+
+    // ✅ Trường hợp có sản phẩm
     return NextResponse.json(
       {
         products,

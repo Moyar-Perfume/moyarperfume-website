@@ -63,10 +63,11 @@ async function dispatchByEvent(event, payload, logId) {
 //--------------------------- HANDLERS ---------------------------//
 
 async function handleProductAdd({ data }) {
-  const nhanhID = data.productId?.toString();
+  const nhanhID = data.productId.toString();
   const name = data.name?.trim();
   const price = data.price || 0;
   const quantity = data.inventories?.remain || 0;
+  const nhanhBrandId = data.brandId;
 
   if (!nhanhID || !name) {
     console.warn("⚠️ Thiếu nhanhID hoặc tên sản phẩm");
@@ -85,9 +86,57 @@ async function handleProductAdd({ data }) {
 
   const slug = slugify(baseName, {
     lower: true,
-    strict: true, // Loại bỏ ký tự đặc biệt
-    locale: "vi", // Hỗ trợ tiếng Việt
+    strict: true,
+    locale: "vi",
   });
+
+  let brandMongoId = null;
+
+  if (nhanhBrandId) {
+    const existingBrand = await Brand.findOne({
+      nhanhBrandID: nhanhBrandId.toString(),
+    });
+
+    if (existingBrand) {
+      brandMongoId = existingBrand._id;
+    } else {
+      try {
+        const formData = new URLSearchParams();
+        formData.append("accessToken", process.env.ACCESS_TOKEN);
+        formData.append("version", process.env.API_VERSION);
+        formData.append("appId", process.env.APP_ID);
+        formData.append("businessId", process.env.BUSINESS_ID);
+        formData.append("data", nhanhID);
+
+        const { data: detailRes } = await axios.post(
+          "https://open.nhanh.vn/api/product/detail",
+          formData,
+          { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+        );
+
+        const brandName = detailRes.data?.data?.[nhanhID].brandId;
+
+        if (brandName) {
+          const brandSlug = slugify(brandName, {
+            lower: true,
+            strict: true,
+            locale: "vi",
+          });
+
+          const newBrand = await Brand.create({
+            name: brandName,
+            slug: brandSlug,
+            nhanhBrandID: nhanhBrandId.toString(),
+          });
+
+          brandMongoId = newBrand._id;
+          console.log(`🆕 Tạo brand mới: ${brandName}`);
+        }
+      } catch (err) {
+        console.error("❌ Lỗi khi fetch brand từ Nhanh.vn:", err.message);
+      }
+    }
+  }
 
   // Tìm sản phẩm theo tên chuẩn hóa
   let product = await ProductNhanhvn.findOne({ slug });
@@ -97,6 +146,7 @@ async function handleProductAdd({ data }) {
     await ProductNhanhvn.create({
       name: baseName,
       slug,
+      brandID: brandMongoId,
       available: true,
       variants: [variantData],
     });
