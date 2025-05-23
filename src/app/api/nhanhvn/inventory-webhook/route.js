@@ -213,13 +213,22 @@ async function handleProductUpdate({ data }) {
       ...variantData,
     };
 
-    if (content) oldProduct.content = content;
-    if (description) oldProduct.description = description;
-    if (data.image) oldProduct.mainImage = data.image;
+    if (content !== undefined) {
+      oldProduct.content = content === null ? "" : content;
+    }
+
+    if (description !== undefined) {
+      oldProduct.description = description === null ? "" : description;
+    }
+
+    if (data.image !== undefined) {
+      oldProduct.mainImage = data.image ?? "";
+    }
 
     if (data.images !== undefined) {
       oldProduct.subImages = data.images === null ? [] : data.images;
     }
+
     await oldProduct.save();
     console.log(`✅ Cập nhật variant ${nhanhID} trong "${baseName}"`);
     return;
