@@ -146,6 +146,7 @@ const ProductTagsCard = ({
     b: 0,
     inputValue: "",
   });
+
   const [khuyendungValues, setKhuyendungValues] = useState({
     xuan: 0,
     ha: 0,
@@ -190,6 +191,29 @@ const ProductTagsCard = ({
       } else {
         // Nếu không có tag thời gian nào thì reset về mặc định
         setThoigianValues({ ngay: 0, dem: 0 });
+      }
+
+      const shadowTag = selectedTags.find((tag) => tag.startsWith("shadow_"));
+      if (shadowTag) {
+        const rawValue = shadowTag.replace("shadow_", "").trim();
+
+        let inputValue = rawValue;
+
+        // Nếu là dạng "210 139 213" thì convert sang "rgb(210, 139, 213)"
+        if (/^\d{1,3} \d{1,3} \d{1,3}$/.test(rawValue)) {
+          const [r, g, b] = rawValue.split(" ");
+          inputValue = `rgb(${r}, ${g}, ${b})`;
+        }
+
+        setShadowValues((prev) => ({
+          ...prev,
+          inputValue,
+        }));
+      } else {
+        setShadowValues((prev) => ({
+          ...prev,
+          inputValue: "",
+        }));
       }
     }
   }, [selectedTags]);

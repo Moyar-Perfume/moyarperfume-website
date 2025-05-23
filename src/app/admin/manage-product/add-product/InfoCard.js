@@ -22,24 +22,11 @@ const InfoCard = ({ form }) => {
 
   return (
     <Card title="Thông tin cơ bản" className=" col-span-3">
-      <Form.Item
-        name="name"
-        label="Tên sản phẩm"
-        rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm!" }]}
-      >
+      <Form.Item name="name" label="Tên sản phẩm">
         <Input placeholder="Nhập tên sản phẩm" readOnly />
       </Form.Item>
 
-      <Form.Item
-        name="brandID"
-        label="Thương hiệu của sản phẩm"
-        rules={[
-          {
-            required: true,
-            message: "Vui lòng chọn thương hiệu của sản phẩm!",
-          },
-        ]}
-      >
+      <Form.Item name="brandID" label="Thương hiệu của sản phẩm">
         {/* <Select
           placeholder="Chọn thương hiệu"
           options={brandOptions}
@@ -56,16 +43,7 @@ const InfoCard = ({ form }) => {
         <Input placeholder="Thương hiệu của sản phẩm" readOnly />
       </Form.Item>
 
-      <Form.Item
-        name="content"
-        label="Mô tả sản phẩm"
-        rules={[
-          {
-            required: true,
-            message: "Vui lòng nhập mô tả của sản phẩm!",
-          },
-        ]}
-      >
+      <Form.Item name="content" label="Mô tả sản phẩm">
         <TextEditor
           placeholder="Nhập mô tả sản phẩm"
           autoSize={{ minRows: 3, maxRows: 6 }}

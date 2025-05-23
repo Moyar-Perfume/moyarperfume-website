@@ -216,7 +216,7 @@ async function handleProductUpdate({ data }) {
     if (content) oldProduct.content = content;
     if (description) oldProduct.description = description;
     if (data.image) oldProduct.mainImage = data.image;
-    if (Array.isArray(data.images)) oldProduct.subImages = data.images;
+    if (data.images) oldProduct.subImages = data.images;
 
     await oldProduct.save();
     console.log(`✅ Cập nhật variant ${nhanhID} trong "${baseName}"`);
