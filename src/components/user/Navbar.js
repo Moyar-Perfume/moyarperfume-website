@@ -27,7 +27,7 @@ const desktopIcons = [
 ];
 
 export default function Navbar() {
-  const { isCartOpen, setIsCartOpen } = useCart();
+  const { setIsCartOpen, totalQuantity } = useCart();
   const [scrollY, setScrollY] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -174,6 +174,11 @@ export default function Navbar() {
                 </Link>
               ) : (
                 <Image src={icon.src} fill alt={icon.alt} />
+              )}
+              {icon.alt === "Cart" && (
+                <span className="absolute -top-2 -right-2 bg-floral text-black text-[10px] px-1 rounded-full">
+                  {totalQuantity}
+                </span>
               )}
             </div>
           ))}

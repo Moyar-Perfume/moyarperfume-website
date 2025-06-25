@@ -6,86 +6,87 @@ import ProductNhanhvn from "@/models/ProductNhanhvn";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
-export async function POST(req) {
-  await connectDB();
-  try {
-    const body = await req.json();
-    const {
-      name,
-      brandID,
-      description,
-      slug,
-      tags,
-      available,
-      variants,
-      images,
-    } = body;
+// Tạo Sản Phẩm Mới
+// export async function POST(req) {
+//   await connectDB();
+//   try {
+//     const body = await req.json();
+//     const {
+//       name,
+//       brandID,
+//       description,
+//       slug,
+//       tags,
+//       available,
+//       variants,
+//       images,
+//     } = body;
 
-    const productId = new mongoose.Types.ObjectId();
+//     const productId = new mongoose.Types.ObjectId();
 
-    const uploadedImages = [];
+//     const uploadedImages = [];
 
-    for (let i = 0; i < images.length; i++) {
-      const { file, type, typeNumber } = images[i];
+//     for (let i = 0; i < images.length; i++) {
+//       const { file, type, typeNumber } = images[i];
 
-      // Kích thước theo typeNumber
-      let width = 1024;
-      let height = 1024;
-      if (typeNumber === 2) {
-        width = 900;
-        height = 500;
-      } else if (typeNumber === 3) {
-        width = 800;
-        height = 900;
-      }
+//       // Kích thước theo typeNumber
+//       let width = 1024;
+//       let height = 1024;
+//       if (typeNumber === 2) {
+//         width = 900;
+//         height = 500;
+//       } else if (typeNumber === 3) {
+//         width = 800;
+//         height = 900;
+//       }
 
-      const uploadRes = await cloudinary.v2.uploader.upload(file, {
-        folder: `products/${productId}`,
-        public_id: `${productId}-${typeNumber}`,
-        overwrite: true,
-        transformation: [{ width, height, crop: "fill", gravity: "auto" }],
-      });
+//       const uploadRes = await cloudinary.v2.uploader.upload(file, {
+//         folder: `products/${productId}`,
+//         public_id: `${productId}-${typeNumber}`,
+//         overwrite: true,
+//         transformation: [{ width, height, crop: "fill", gravity: "auto" }],
+//       });
 
-      uploadedImages.push({
-        url: uploadRes.secure_url,
-        public_id: uploadRes.public_id,
-        typeNumber,
-        type: type,
-      });
-    }
+//       uploadedImages.push({
+//         url: uploadRes.secure_url,
+//         public_id: uploadRes.public_id,
+//         typeNumber,
+//         type: type,
+//       });
+//     }
 
-    // Create new product
-    const newProduct = new Product({
-      _id: productId,
-      name,
-      brandID,
-      description,
-      slug,
-      tags,
-      available: available !== undefined ? available : true,
-      images: uploadedImages || [],
-      variants,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+//     // Create new product
+//     const newProduct = new Product({
+//       _id: productId,
+//       name,
+//       brandID,
+//       description,
+//       slug,
+//       tags,
+//       available: available !== undefined ? available : true,
+//       images: uploadedImages || [],
+//       variants,
+//       createdAt: new Date(),
+//       updatedAt: new Date(),
+//     });
 
-    await newProduct.save();
+//     await newProduct.save();
 
-    return NextResponse.json(
-      {
-        message: "Thêm sản phẩm mới thành công",
-        product: newProduct,
-      },
-      { status: 201 }
-    );
-  } catch (error) {
-    console.error("Error creating product:", error);
-    return NextResponse.json(
-      { error: "Không thể tạo sản phẩm mới", details: error.message },
-      { status: 500 }
-    );
-  }
-}
+//     return NextResponse.json(
+//       {
+//         message: "Thêm sản phẩm mới thành công",
+//         product: newProduct,
+//       },
+//       { status: 201 }
+//     );
+//   } catch (error) {
+//     console.error("Error creating product:", error);
+//     return NextResponse.json(
+//       { error: "Không thể tạo sản phẩm mới", details: error.message },
+//       { status: 500 }
+//     );
+//   }
+// }
 
 export async function GET(req) {
   await connectDB();

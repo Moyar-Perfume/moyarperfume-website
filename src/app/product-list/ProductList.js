@@ -2,8 +2,9 @@
 
 import api from "@/constants/apiURL";
 import { useEffect, useState } from "react";
-import Product from "@/components/shared/Product";
+import Product from "@/components/product/Product";
 import { useFilter } from "@/contexts/FilterContext";
+import ScrollToTopButton from "@/components/shared/ScrollToTopButton";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -14,9 +15,25 @@ export default function ProductList() {
   const [totalProducts, setTotalProducts] = useState(0);
   const productsPerPage = 8;
 
-  const { selectedConcents } = useFilter();
+  const {
+    selectedConcents,
+    selectedSeasons,
+    budget,
+    budgetRange,
+    selectedBrands,
+    selectedScent,
+    selectedSubScents,
+  } = useFilter();
 
-  console.log("selectedConcents", selectedConcents);
+  const [budgetStart, budgetEnd] = budget;
+  const [minRange, maxRange] = budgetRange;
+
+  const minPrice = Math.floor(
+    minRange + ((maxRange - minRange) * budgetStart) / 100
+  );
+  const maxPrice = Math.ceil(
+    minRange + ((maxRange - minRange) * budgetEnd) / 100
+  );
 
   const buildQueryParams = () => {
     const queryParams = new URLSearchParams();
@@ -27,15 +44,39 @@ export default function ProductList() {
     selectedConcents.forEach((name) => {
       queryParams.append("nongdo", name);
     });
+
+    selectedSeasons.forEach((id) => {
+      queryParams.append("mua", id);
+    });
+
+    if (minPrice !== undefined && maxPrice !== undefined) {
+      queryParams.append("minPrice", minPrice);
+      queryParams.append("maxPrice", maxPrice);
+    }
+
+    selectedBrands.forEach((id) => {
+      queryParams.append("brands", id);
+    });
+
+    if (selectedScent) {
+      queryParams.append("scent", selectedScent);
+    }
+
+    if (selectedSubScents.length) {
+      selectedSubScents.forEach((slug) => {
+        queryParams.append("subScent", slug);
+      });
+    }
+
     return queryParams;
   };
 
-  // Gọi API
   const fetchProducts = async (page = 1) => {
     setLoading(true);
+
     try {
       const queryParams = buildQueryParams();
-      queryParams.set("page", page); // Cập nhật page khi gọi
+      queryParams.set("page", page);
 
       const response = await api.get(`/product-list?${queryParams.toString()}`);
       const { products: newProducts, pagination } = response.data;
@@ -51,13 +92,19 @@ export default function ProductList() {
   };
 
   useEffect(() => {
-    setCurrentPage(1);
     fetchProducts(1);
-  }, [selectedConcents]);
+    setCurrentPage(1);
+  }, [
+    selectedConcents,
+    selectedSeasons,
+    minPrice,
+    maxPrice,
+    selectedBrands,
+    selectedScent,
+    selectedSubScents,
+  ]);
 
-  // Khi currentPage đổi hoặc vừa được reset
   useEffect(() => {
-    setProducts([]);
     fetchProducts(currentPage);
   }, [currentPage]);
 
@@ -103,12 +150,13 @@ export default function ProductList() {
 
   return (
     <div className="flex flex-col min-h-screen mt-10">
+      <ScrollToTopButton />
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full items-center justify-around px-20 flex-grow">
-        {loading && products.length === 0 ? (
+        {loading ? (
           renderSkeletons()
         ) : products.length > 0 ? (
           products.map((product, index) => (
-            <div key={`${product.slug}-${index}`} className="p-2">
+            <div key={`${product.slug}-${index}`}>
               <Product product={product} imageSize="h-[300px]" />
             </div>
           ))

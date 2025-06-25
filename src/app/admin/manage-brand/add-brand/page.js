@@ -106,9 +106,11 @@ export default function AddBrand() {
                   onChange={setDescription}
                   className="h-full"
                   disabled={loadingAddBrand}
+                  readOnly={false}
                 />
               </Form.Item>
             </div>
+
             <div className="">
               <Form.Item
                 label="Tên thương hiệu"

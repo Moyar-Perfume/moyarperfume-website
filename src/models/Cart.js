@@ -5,6 +5,7 @@ const cartItemSchema = new mongoose.Schema({
   variant: {
     id: { type: String, required: true }, // _id của variant từ Product
     capacity: String, // Dùng để hiển thị
+    price: Number,
   },
   quantity: { type: Number, required: true, default: 1 },
 });

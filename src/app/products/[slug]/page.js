@@ -1,13 +1,13 @@
 "use client";
 
-import Product from "@/components/shared/Product";
-import Button from "@/components/ui/Button";
+import Product from "@/components/product/Product";
+import Button from "@/components/shared/Button";
 import useDetailProduct from "@/hooks/useDetailProduct";
 import { Carousel, ConfigProvider } from "antd";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import RelatedProducts from "@/components/shared/RelatedProducts";
+import RelatedProducts from "@/components/product/RelatedProducts";
 
 export default function DetailProduct() {
   const { slug } = useParams();
@@ -64,14 +64,6 @@ export default function DetailProduct() {
         setQuantity(newQuantity);
       }
     }
-  };
-
-  // Tạo helper function để lấy hình ảnh theo type
-  const getImageByType = (images, type) => {
-    if (!images || !Array.isArray(images)) return null;
-
-    const image = images.find((img) => img.type === type);
-    return image ? image.url : null;
   };
 
   if (loading)
@@ -261,15 +253,16 @@ export default function DetailProduct() {
                   "drop-shadow(30px -10px 30px rgba(128, 128, 128, 0.60))",
               }}
             >
-              <Image
-                src={
-                  getImageByType(detailProduct.images, "main") ||
-                  "/product/placeholder-product-01.png"
-                }
-                fill
-                className="object-cover"
-                alt={`${detailProduct.name || "Product"} image`}
-              />
+              {detailProduct.mainImage ? (
+                <Image
+                  src={detailProduct.mainImage}
+                  fill
+                  className="object-cover"
+                  alt={`${detailProduct.name || "Product"} image`}
+                />
+              ) : (
+                <div className="w-[500px] h-[500px] bg-gray-200"></div>
+              )}
             </div>
           </div>
           <div className="w-1/2 flex flex-col gap-2">
@@ -324,7 +317,7 @@ export default function DetailProduct() {
                 <div className="w-[60px] h-[60px] relative">
                   <Image
                     src={
-                      getImageByType(detailProduct.images, "main") ||
+                      detailProduct.mainImage ||
                       "/product/placeholder-product-01.png"
                     }
                     fill
@@ -420,10 +413,10 @@ export default function DetailProduct() {
             dangerouslySetInnerHTML={{ __html: detailProduct.description }}
           ></div>
         </div>
-        <div className="w-1/2 h-[500px] sticky top-40 bg-red-300">
+        <div className="w-1/2 h-[500px] sticky top-40 ">
           <Image
             src={
-              getImageByType(detailProduct.images, "description") ||
+              detailProduct.subImages[0] ||
               "/product/placeholder-product-02.png"
             }
             fill
@@ -437,7 +430,7 @@ export default function DetailProduct() {
         <div className="w-1/2 h-[900px] sticky top-12">
           <Image
             src={
-              getImageByType(detailProduct.images, "feature") ||
+              detailProduct.subImages[1] ||
               "/product/placeholder-product-03.png"
             }
             fill
@@ -860,12 +853,16 @@ export default function DetailProduct() {
           </div>
           <div className="w-1/2 flex items-center justify-center">
             <div className="w-[300px] h-[300px] relative">
-              <Image
-                src={brand.logo}
-                fill
-                className="object-cover"
-                alt="brand-logo"
-              />
+              {brand.logo ? (
+                <Image
+                  src={brand.logo}
+                  fill
+                  className="object-cover"
+                  alt="brand-logo"
+                />
+              ) : (
+                <div className="w-[300px] h-[300px] bg-gray-200"></div>
+              )}
             </div>
           </div>
         </div>

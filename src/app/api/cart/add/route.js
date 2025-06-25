@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 
 import Cart from "@/models/Cart";
-import Product from "@/models/Product";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/libs/auth";
+
 import { connectDB } from "@/libs/mongoDB";
 import { getOrSetCartId } from "@/libs/cartCookie";
+import ProductNhanhvn from "@/models/ProductNhanhvn";
 
 export async function POST(req) {
   await connectDB();
@@ -13,10 +12,8 @@ export async function POST(req) {
   const { slug, variant, quantity } = body;
 
   const cartId = getOrSetCartId();
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id || null;
 
-  const product = await Product.findOne({ slug });
+  const product = await ProductNhanhvn.findOne({ slug });
   if (!product)
     return NextResponse.json(
       { error: "Sản phẩm không tồn tại" },
@@ -31,8 +28,9 @@ export async function POST(req) {
     );
 
   let cart = await Cart.findOne({ cartId });
+
   if (!cart) {
-    cart = new Cart({ cartId, userId, isGuest: !userId, items: [] });
+    cart = new Cart({ cartId, isGuest: true, items: [] });
   }
 
   // Kiểm tra xem item đã tồn tại trong cart chưa (cùng slug + variant.id)
@@ -48,14 +46,10 @@ export async function POST(req) {
       variant: {
         id: variant.id,
         capacity: matchedVariant.capacity,
+        price: matchedVariant.price,
       },
       quantity,
     });
-  }
-
-  if (userId) {
-    cart.userId = userId;
-    cart.isGuest = false;
   }
 
   await cart.save();

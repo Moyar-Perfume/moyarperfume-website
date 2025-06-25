@@ -3,7 +3,13 @@ import "react-quill/dist/quill.snow.css";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
-export default function TextEditor({ value, onChange, className, disabled }) {
+export default function TextEditor({
+  value,
+  onChange,
+  className,
+  disabled,
+  readOnly,
+}) {
   const modules = {
     toolbar: [
       ["bold", "italic", "underline", "strike"], // In đậm, in nghiêng, gạch chân, gạch ngang
@@ -45,7 +51,7 @@ export default function TextEditor({ value, onChange, className, disabled }) {
       modules={modules}
       formats={formats}
       className={`w-full pb-0 mb-0 h-full ${className || ""}`}
-      readOnly={true}
+      readOnly={readOnly}
     />
   );
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import Product from "./Product";
+import Product from "../product/Product";
 
 // Danh sách từ khóa gợi ý
 const suggestedKeywords = [

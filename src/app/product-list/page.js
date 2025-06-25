@@ -8,11 +8,11 @@ import { FilterContext } from "@/contexts/FilterContext";
 
 export default function ProductListPage() {
   return (
-    // <FilterContext>
-    //   <ProductFilter />
-    //   <ProductList />
-    // </FilterContext>
+    <FilterContext>
+      <ProductFilter />
+      <ProductList />
+    </FilterContext>
 
-    <ComingSoon />
+    // <ComingSoon />
   );
 }

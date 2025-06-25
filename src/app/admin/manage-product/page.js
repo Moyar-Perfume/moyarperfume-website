@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback, use } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Modal, message, Switch } from "antd";
+import { Button, message, Switch } from "antd";
 import Image from "next/image";
 import { formatDate } from "@/utils/formatter";
 import api from "@/constants/apiURL";
@@ -25,6 +25,8 @@ export default function ManageProduct() {
   });
 
   const productsPerPage = 12;
+
+  console.log(productList);
 
   const fetchProducts = async (page = 1, limit = 20, search = searchText) => {
     setProductListLoading(true);
@@ -145,57 +147,6 @@ export default function ManageProduct() {
     }
   };
 
-  // const [filteredProducts, setFilteredProducts] = useState([]);
-  // Thêm state cho modal xóa
-  // const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  // const [productToDelete, setProductToDelete] = useState(null);
-  // const [deleteLoading, setDeleteLoading] = useState(false);
-  // const [products, setProducts] = useState([]);
-  //// Các hàm xóa sản phẩm
-  // Thêm hàm xử lý xóa sản phẩm
-  // const handleDeleteProduct = async () => {
-  //   if (!productToDelete) return;
-
-  //   setDeleteLoading(true);
-  //   try {
-  //     await api.delete(`admin/manage-product/${productToDelete.id}`);
-
-  //     setProducts(
-  //       products.filter((product) => product.id !== productToDelete.id)
-  //     );
-  //     setFilteredProducts(
-  //       filteredProducts.filter((product) => product.id !== productToDelete.id)
-  //     );
-
-  //     message.success(`Đã xóa sản phẩm "${productToDelete.name}" thành công!`);
-  //   } catch (error) {
-  //     console.error("Lỗi khi xóa sản phẩm:", error);
-  //     message.error("Có lỗi xảy ra khi xóa sản phẩm!");
-  //   } finally {
-  //     setDeleteLoading(false);
-  //     setDeleteModalVisible(false);
-  //     setProductToDelete(null);
-  //   }
-  // };
-  // Hàm mở modal xác nhận xóa
-  // const showDeleteConfirm = (product) => {
-  //   setProductToDelete(product);
-  //   setDeleteModalVisible(true);
-  // };
-  // Hàm đóng modal xác nhận
-  // const handleCancelDelete = () => {
-  //   setDeleteModalVisible(false);
-  //   setProductToDelete(null);
-  // };
-
-  // // Tạo helper function để lấy hình ảnh theo type
-  // const getImageByType = (images, type) => {
-  //   if (!images || !Array.isArray(images)) return null;
-
-  //   const image = images.find((img) => img.type === type);
-  //   return image ? image.url : null;
-  // };
-
   return (
     <div className="bg-white shadow-md p-4 w-full min-h-[calc(100vh-70px)] flex flex-col">
       {/* Header và Search */}
@@ -206,7 +157,7 @@ export default function ManageProduct() {
           <Button
             type="primary"
             onClick={navigateToAddProduct}
-            className="bg-blue-500 hover:bg-blue-600"
+            className="bg-blue-500 "
             disabled
           >
             Thêm sản phẩm
@@ -573,6 +524,57 @@ export default function ManageProduct() {
     </div>
   );
 }
+
+// const [filteredProducts, setFilteredProducts] = useState([]);
+// Thêm state cho modal xóa
+// const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+// const [productToDelete, setProductToDelete] = useState(null);
+// const [deleteLoading, setDeleteLoading] = useState(false);
+// const [products, setProducts] = useState([]);
+//// Các hàm xóa sản phẩm
+// Thêm hàm xử lý xóa sản phẩm
+// const handleDeleteProduct = async () => {
+//   if (!productToDelete) return;
+
+//   setDeleteLoading(true);
+//   try {
+//     await api.delete(`admin/manage-product/${productToDelete.id}`);
+
+//     setProducts(
+//       products.filter((product) => product.id !== productToDelete.id)
+//     );
+//     setFilteredProducts(
+//       filteredProducts.filter((product) => product.id !== productToDelete.id)
+//     );
+
+//     message.success(`Đã xóa sản phẩm "${productToDelete.name}" thành công!`);
+//   } catch (error) {
+//     console.error("Lỗi khi xóa sản phẩm:", error);
+//     message.error("Có lỗi xảy ra khi xóa sản phẩm!");
+//   } finally {
+//     setDeleteLoading(false);
+//     setDeleteModalVisible(false);
+//     setProductToDelete(null);
+//   }
+// };
+// Hàm mở modal xác nhận xóa
+// const showDeleteConfirm = (product) => {
+//   setProductToDelete(product);
+//   setDeleteModalVisible(true);
+// };
+// Hàm đóng modal xác nhận
+// const handleCancelDelete = () => {
+//   setDeleteModalVisible(false);
+//   setProductToDelete(null);
+// };
+
+// // Tạo helper function để lấy hình ảnh theo type
+// const getImageByType = (images, type) => {
+//   if (!images || !Array.isArray(images)) return null;
+
+//   const image = images.find((img) => img.type === type);
+//   return image ? image.url : null;
+// };
 
 // export default function ManageProduct() {
 //   const [productListLoading, setProductListLoading] = useState(false);

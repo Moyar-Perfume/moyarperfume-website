@@ -4,8 +4,16 @@ import jwt from "jsonwebtoken";
 export function requireAuth() {
   const token = cookies().get("token")?.value;
 
-  if (!token) throw new Error("Unauthorized");
+  console.log(token);
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  return decoded;
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded;
+  } catch (err) {
+    throw new Error("Invalid or expired token");
+  }
 }

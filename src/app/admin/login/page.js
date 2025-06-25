@@ -1,7 +1,7 @@
 // app/admin/login/page.jsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input, Button } from "antd";
 import {
   UserOutlined,
@@ -9,18 +9,28 @@ import {
   EyeTwoTone,
   LockOutlined,
 } from "@ant-design/icons";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
+
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.role === "admin") {
+      router.replace("/admin");
+    }
+  }, [session, status, router]);
 
   const handleLogin = async () => {
     try {
       setLoading(true);
+      setErrorMessage("");
 
       const result = await signIn("credentials", {
         username,
@@ -29,19 +39,24 @@ export default function AdminLogin() {
       });
 
       if (result.error) {
-        console.error("Lỗi đăng nhập:", result.error);
-        alert(result.error);
+        setErrorMessage(result.error);
       } else {
-        console.log("Đăng nhập thành công, chuyển hướng đến trang quản lý");
         router.push("/admin/manage-product");
       }
     } catch (error) {
-      console.error("Lỗi đăng nhập chi tiết:", error);
-      alert("Lỗi kết nối đến máy chủ.");
+      setErrorMessage("Lỗi kết nối đến máy chủ.");
     } finally {
       setLoading(false);
     }
   };
+
+  if (status === "loading") {
+    return (
+      <div className="p-10 text-center text-gray-600">
+        Đang kiểm tra phiên đăng nhập...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -91,6 +106,10 @@ export default function AdminLogin() {
               Đăng nhập
             </Button>
           </div>
+
+          {errorMessage && (
+            <div className="text-red-500 text-sm mt-3">{errorMessage}</div>
+          )}
         </div>
       </div>
     </div>

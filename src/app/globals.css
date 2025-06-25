@@ -51,6 +51,8 @@
 
 :root {
   --black: #191919;
+  --grey: #252525;
+  --light-grey: #3b3b3b;
   --white: #f9f9f9;
   --rose: #f2bfc0;
   --floral: #f2ebe2;
@@ -109,27 +111,25 @@ body {
 @layer utilities {
   /* Custom scrollbar for WebKit browsers (Chrome, Safari) */
   .custom-scrollbar::-webkit-scrollbar {
-    width: 5px; /* Độ rộng của thanh cuộn */
+    width: 4px; /* Độ rộng của thanh cuộn */
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: #f1f1f1; /* Màu nền track */
+    background: #323232; /* Màu nền track */
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #000; /* Màu của thanh cuộn */
+    background: #f1f1f1; /* Màu của thanh cuộn */
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #000; /* Màu khi hover */
+    background: #838383; /* Màu khi hover */
   }
 }
 
 /* Thêm vào styles/global.css hoặc styles/module.css của bạn */
 
 .flower {
-  width: 30px;
-  height: 30px;
   background-image: url("/element/flower_pink.svg");
   background-size: cover;
   background-position: center;

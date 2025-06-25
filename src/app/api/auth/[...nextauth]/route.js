@@ -4,7 +4,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { connectDB } from "@/libs/mongoDB";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
-import crypto from "crypto";
 
 const handler = NextAuth({
   providers: [
@@ -38,6 +37,7 @@ const handler = NextAuth({
           name: user.username,
           email: user.username,
           role: user.role,
+          provider: "account",
         };
       },
     }),
@@ -52,12 +52,8 @@ const handler = NextAuth({
         const existingUser = await User.findOne({ username: profile.email });
 
         if (!existingUser) {
-          const randomPassword = crypto.randomBytes(16).toString("hex");
-          const hashedPassword = await bcrypt.hash(randomPassword, 10);
-
           await User.create({
             username: profile.email,
-            password: hashedPassword,
             fullName: profile.name,
             provider: "google",
           });

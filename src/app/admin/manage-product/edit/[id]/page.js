@@ -157,7 +157,7 @@ export default function EditProduct() {
       const productData = {
         id: id,
         // name: values.name,
-        // brandID: values.brandID,
+        brandID: values.brandID,
         // description: values.description,
         // slug: slug,
         tags: values.tags,

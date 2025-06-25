@@ -27,26 +27,26 @@ const InfoCard = ({ form }) => {
       </Form.Item>
 
       <Form.Item name="brandID" label="Thương hiệu của sản phẩm">
-        {/* <Select
+        <Select
           placeholder="Chọn thương hiệu"
           options={brandOptions}
           loading={loading}
-          disabled={true}
           onChange={handleBrandChange}
           showSearch
           optionFilterProp="label"
           filterOption={(input, option) =>
             (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
           }
-        /> */}
+        />
 
-        <Input placeholder="Thương hiệu của sản phẩm" readOnly />
+        {/* <Input placeholder="Thương hiệu của sản phẩm" readOnly /> */}
       </Form.Item>
 
       <Form.Item name="content" label="Mô tả sản phẩm">
         <TextEditor
           placeholder="Nhập mô tả sản phẩm"
           autoSize={{ minRows: 3, maxRows: 6 }}
+          readOnly={true}
         />
 
         {/* <Input placeholder="Mô tả sản phẩm" readOnly /> */}

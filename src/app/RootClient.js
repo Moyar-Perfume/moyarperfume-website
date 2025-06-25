@@ -1,92 +1,53 @@
 "use client";
 
-import { useSession } from "next-auth/react"; // thêm dòng này
+import { useSession } from "next-auth/react";
 import "./globals.css";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import { usePathname } from "next/navigation";
-import { useCart } from "@/contexts/CartContext";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import Cart from "@/components/shared/Cart";
-import Navbar from "@/components/layout/user/Navbar";
-import Footer from "@/components/layout/user/Footer";
 
-import AdminHeader from "@/components/layout/admin/AdminHeader";
-import AdminSidebar from "@/components/layout/admin/AdminSidebar";
+import AdminLayout from "@/components/layout/AdminLayout";
+import UserLayout from "@/components/layout/UserLayout";
 
 export default function RootClient({ children }) {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const router = useRouter();
+
   const isAdminPage = pathname.startsWith("/admin");
   const isAdminLoginPage = pathname === "/admin/login";
-  const { isCartOpen, setIsCartOpen } = useCart();
-
   const isAdmin = session?.user?.role === "admin";
-  const isUser = session?.user?.role === "user";
 
   useEffect(() => {
-    if (isCartOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
+    if (!isAdminPage || isAdminLoginPage) return;
+
+    if (status === "authenticated" && !isAdmin) {
+      router.replace("/admin/login");
     }
 
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [isCartOpen]);
+    if (status === "unauthenticated") {
+      router.replace("/admin/login");
+    }
+  }, [isAdminPage, isAdminLoginPage, status, isAdmin, router]);
+
+  if (isAdminPage && !isAdminLoginPage && status === "loading") {
+    return (
+      <div className="p-10 text-center text-gray-600">
+        Đang kiểm tra phiên đăng nhập...
+      </div>
+    );
+  }
 
   return (
     <AntdRegistry>
       {isAdminPage ? (
         isAdminLoginPage ? (
           children
-        ) : isAdmin ? ( // chỉ admin mới truy cập được admin layout
-          <div>
-            <AdminSidebar />
-            <div className="overflow-hidden">
-              <AdminHeader />
-              <div className="pt-[60px] pl-[200px]">{children}</div>
-            </div>
-          </div>
-        ) : (
-          <div className="flex w-full items-center justify-center flex-col">
-            <div className="p-10 text-center text-red-500 font-semibold">
-              Không có quyền truy cập
-            </div>
-            <a href="/admin/login" className="underline">
-              Đăng Nhập Ngay
-            </a>
-          </div>
-        )
+        ) : isAdmin ? (
+          <AdminLayout>{children}</AdminLayout>
+        ) : null
       ) : (
-        <div className="min-h-screen bg-white relative">
-          <div className="fixed top-0 left-0 right-0 z-50 w-full">
-            <Navbar />
-          </div>
-
-          <div
-            className={`fixed top-0 left-0 right-0 z-[100] max-h-[80vh] bg-white shadow-lg transition-transform duration-300 ease-in-out ${
-              isCartOpen
-                ? "transform translate-y-0"
-                : "transform -translate-y-full"
-            } overflow-y-auto`}
-          >
-            <Cart />
-          </div>
-
-          <main className="pt-[70px] md:pt-[90px] xl:pt-[133px]">
-            {children}
-          </main>
-
-          <Footer />
-
-          {isCartOpen && (
-            <div
-              className="fixed inset-0 bg-black opacity-50 z-[90]"
-              onClick={() => setIsCartOpen(false)}
-            />
-          )}
-        </div>
+        <UserLayout>{children}</UserLayout>
       )}
     </AntdRegistry>
   );

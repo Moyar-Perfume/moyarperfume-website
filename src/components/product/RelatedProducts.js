@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Product from "@/components/shared/Product";
+import Product from "@/components/product/Product";
 import { Carousel, ConfigProvider } from "antd";
 import api from "@/constants/apiURL";
 

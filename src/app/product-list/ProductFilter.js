@@ -1,9 +1,9 @@
-import SeasonFilter from "@/components/shared/filters/SeasonFilter";
-import ConcentFilter from "@/components/shared/filters/ConcentFilter";
-import BrandFilter from "@/components/shared/filters/BrandFilter";
-import BudgetFilter from "@/components/shared/filters/BudgetFilter";
-import ScentsFilter from "@/components/shared/filters/ScentsFilter";
-import SubScentsFilter from "@/components/shared/filters/SubScentsFilter";
+import SeasonFilter from "@/components/filters/SeasonFilter";
+import ConcentFilter from "@/components/filters/ConcentFilter";
+import BrandFilter from "@/components/filters/BrandFilter";
+import BudgetFilter from "@/components/filters/BudgetFilter";
+import ScentsFilter from "@/components/filters/ScentsFilter";
+import SubScentsFilter from "@/components/filters/SubScentsFilter";
 
 export default function ProductFilter() {
   return (

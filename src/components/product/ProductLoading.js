@@ -1,4 +1,4 @@
-export default function ProductSkeleton() {
+export default function ProductLoading() {
   return (
     <div className="p-2 animate-pulse">
       <div className="flex flex-col items-center">

@@ -1,8 +1,8 @@
 "use client";
 
 import ComingSoon from "@/components/shared/ComingSoon";
-import Product from "@/components/shared/Product";
-import Button from "@/components/ui/Button";
+import Product from "@/components/product/Product";
+import Button from "@/components/shared/Button";
 import api from "@/constants/apiURL";
 import { Carousel, ConfigProvider } from "antd";
 import Image from "next/image";

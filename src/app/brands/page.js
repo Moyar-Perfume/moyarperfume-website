@@ -1,7 +1,7 @@
 "use client";
 import { useRef } from "react";
 import Image from "next/image";
-import Button from "@/components/ui/Button";
+import Button from "@/components/shared/Button";
 import ComingSoon from "@/components/shared/ComingSoon";
 
 const brands = [

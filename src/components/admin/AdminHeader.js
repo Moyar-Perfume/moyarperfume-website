@@ -1,13 +1,9 @@
 import { Dropdown, Space } from "antd";
 import { signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
 
 const AdminHeader = () => {
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    router.push("/admin/login");
-    await signOut({ redirect: false });
+  const handleLogout = () => {
+    signOut({ callbackUrl: "/admin/login" });
   };
 
   const items = [

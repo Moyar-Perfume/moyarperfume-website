@@ -62,8 +62,15 @@ export default function EditBrand() {
 
     let logo = "";
 
-    if (fileList.length && fileList[0].originFileObj) {
-      logo = await getBase64(fileList[0].originFileObj);
+    if (fileList.length > 0) {
+      const file = fileList[0];
+      if (file.originFileObj) {
+        // Nếu là ảnh mới -> convert sang base64
+        logo = await getBase64(file.originFileObj);
+      } else if (file.url) {
+        // Nếu là ảnh cũ Cloudinary thì giữ nguyên
+        logo = file.url;
+      }
     }
 
     const updatedBrand = {

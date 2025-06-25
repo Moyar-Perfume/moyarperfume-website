@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import Button from "../components/ui/Button";
+import Button from "../components/shared/Button";
 
 import React from "react";
 import { Carousel, ConfigProvider } from "antd";
 
 import productData from "@/data/productData";
 import blogData from "@/data/blogData";
-import Product from "@/components/shared/Product";
+import Product from "@/components/product/Product";
 import api from "@/constants/apiURL";
 
 const feedbacks = [

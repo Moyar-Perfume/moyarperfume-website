@@ -17,6 +17,8 @@ module.exports = {
     extend: {
       colors: {
         black: "var(--black)",
+        grey: "var(--grey)",
+        "light-grey": "var(--light-grey)",
         white: "var(--white)",
         rose: "var(--rose)",
         floral: "var(--floral)",

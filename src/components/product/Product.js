@@ -3,10 +3,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import api from "@/constants/apiURL";
+import { useCart } from "@/contexts/CartContext";
 
 const Product = ({
   product,
-  className = "",
   onClick,
   showPrice = true,
   imageSize = "h-[300px]",
@@ -67,12 +68,34 @@ const Product = ({
   // Số lượng volume có sẵn
   const volumeCount = availableVariants.length;
 
+  const { setCartChanged } = useCart();
+
   // Xử lý thêm vào giỏ hàng
-  const handleAddToCart = (e) => {
+  const handleAddToCart = async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // Thêm xử lý thêm vào giỏ hàng ở đây
+    if (!selectedVariants || !selectedVariants._id) {
+      console.warn("No variant selected.");
+      return;
+    }
+
+    try {
+      const response = await api.post("/cart/add", {
+        slug,
+        variant: {
+          id: selectedVariants._id,
+        },
+        quantity: 1,
+      });
+
+      setCartChanged((prev) => !prev);
+    } catch (error) {
+      console.error(
+        "Lỗi khi thêm vào giỏ hàng:",
+        error.response?.data || error.message
+      );
+    }
   };
 
   // Xử lý chọn volume
@@ -83,9 +106,16 @@ const Product = ({
 
   const brandName = brandID?.name;
 
+  const filteredTags = product.tags?.filter(
+    (tag) =>
+      tag.startsWith("notehuong_") ||
+      tag.startsWith("muihuong_") ||
+      tag.startsWith("nongdo_")
+  );
+
   return (
     <div
-      className={`flex flex-col items-center justify-center ${className} relative max-w-[400px]`}
+      className={`flex flex-col items-center justify-center relative max-w-[400px]`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
@@ -94,7 +124,7 @@ const Product = ({
       <Link href={productUrl} className="w-full block relative" legacyBehavior>
         <a className="w-full flex items-center justify-center overflow-hidden">
           <div
-            className={`relative w-full ${imageSize} max-w-[400px] overflow-hidden rounded-sm transition-all duration-300`}
+            className={`relative w-full ${imageSize} max-w-[400px] overflow-hidden transition-all duration-300 `}
           >
             <Image
               src={mainImage}
@@ -129,10 +159,16 @@ const Product = ({
         <p className="text-center mt-1 text-xl sm:text-2xl px-2 transition-colors hover:text-gray-700 text-black">
           {name}
         </p>
-      </Link>
 
-      {/* Divider - NEW */}
-      <div className="w-16 h-0.5 bg-gray-200 my-2"></div>
+        <div className="flex relative  w-full space-x-1 items-center justify-center  mt-2">
+          <span className="text-xs text-grey uppercase">|</span>
+          {filteredTags?.map((tag, index) => (
+            <span key={index} className="text-grey uppercase text-xs">
+              {tag.split("_")[1]} |
+            </span>
+          ))}
+        </div>
+      </Link>
 
       {/* Conditional content based on hover state - MOVED TO BOTTOM */}
       <div className="w-full relative h-[130px]">
@@ -142,14 +178,17 @@ const Product = ({
             isHovered ? "opacity-0 transform -translate-y-2" : "opacity-100"
           }`}
         >
-          <div className="bg-gray-50 px-5 rounded-md w-full max-w-[250px] text-center">
-            <div className="text-center  font-medium text-gray-800 grid">
-              <span className="text-lg">
-                {volumeCount > 0 ? `${volumeCount} volumes` : ""}
+          <div className="bg-gray-50 px-5 rounded-md w-full text-center">
+            <div className="text-center font-medium text-gray-800 flex gap-1 items-center justify-center  mt-2 ">
+              <span className="text-sm font-light">
+                {volumeCount > 0 ? `${volumeCount} Sizes` : ""}
               </span>
-              <span className="font-semibold text-black text-lg grid">
+              /
+              <span className="font-semibold text-black text-base flex items-center gap-1">
                 <span className="text-sm font-normal">From</span>
-                {lowestPrice ? " " + lowestPrice.toLocaleString() : 0} VNĐ
+                <span className="text-sm font-light">
+                  {lowestPrice ? " " + lowestPrice.toLocaleString() : 0} VNĐ
+                </span>
               </span>
             </div>
           </div>
@@ -157,7 +196,7 @@ const Product = ({
 
         {/* Hover state content - absolutely positioned */}
         <div
-          className={`w-full absolute inset-0 bg-white z-10 flex flex-col justify-center px-3  transition-all duration-300 ${
+          className={`w-full absolute inset-0 z-10 flex flex-col px-3 transition-all duration-300 pt-2 ${
             isHovered
               ? "opacity-100 transform translate-y-0"
               : "opacity-0 transform translate-y-2 pointer-events-none"
@@ -167,7 +206,10 @@ const Product = ({
           {availableVariants.length > 0 && (
             <div className="flex items-center gap-2 mb-2 justify-center flex-wrap">
               {availableVariants.map((variant, index) => (
-                <div key={index} className="flex items-center justify-center">
+                <div
+                  key={variant._id}
+                  className="flex items-center justify-center"
+                >
                   <input
                     type="radio"
                     id={`variants-${slug}-${index}`}

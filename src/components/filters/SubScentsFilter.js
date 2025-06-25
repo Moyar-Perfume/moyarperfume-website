@@ -4,20 +4,45 @@ import { Carousel, ConfigProvider } from "antd";
 import { motion, AnimatePresence } from "framer-motion";
 
 const subScents = [
-  { id: 1, name: "Citrus", img: "/scents/sub/citrus.webp" },
-  { id: 2, name: "Green", img: "/scents/sub/green.webp" },
-  { id: 3, name: "Watery", img: "/scents/sub/watery.webp" },
-  { id: 4, name: "Aromatic Fougere", img: "/scents/sub/aromatic-fougere.webp" },
-  { id: 5, name: "Aldehydic", img: "/scents/sub/aldehyde.webp" },
-  { id: 6, name: "Floral", img: "/scents/sub/floral.webp" },
-  { id: 7, name: "Fruity", img: "/scents/sub/fruity.webp" },
-  { id: 8, name: "Spicy", img: "/scents/sub/spicy.webp" },
-  { id: 9, name: "Chypre", img: "/scents/sub/chypre.webp" },
-  { id: 10, name: "Tobacco", img: "/scents/sub/tobacco.webp" },
-  { id: 11, name: "Gourmand", img: "/scents/sub/gourmand.webp" },
-  { id: 12, name: "Ambery (Oriental)", img: "/scents/sub/ambery.webp" },
-  { id: 13, name: "Leather", img: "/scents/sub/leather.webp" },
-  { id: 14, name: "Musk Skin", img: "/scents/sub/musk-skin.webp" },
+  { id: 1, name: "Citrus", img: "/scents/sub/citrus.webp", slug: "citrus" },
+  { id: 2, name: "Green", img: "/scents/sub/green.webp", slug: "green" },
+  { id: 3, name: "Watery", img: "/scents/sub/watery.webp", slug: "watery" },
+  {
+    id: 4,
+    name: "Aromatic Fougere",
+    img: "/scents/sub/aromatic-fougere.webp",
+    slug: "aromatic-fougere",
+  },
+  {
+    id: 5,
+    name: "Aldehydic",
+    img: "/scents/sub/aldehyde.webp",
+    slug: "aldehydic",
+  },
+  { id: 6, name: "Floral", img: "/scents/sub/floral.webp", slug: "floral" },
+  { id: 7, name: "Fruity", img: "/scents/sub/fruity.webp", slug: "fruity" },
+  { id: 8, name: "Spicy", img: "/scents/sub/spicy.webp", slug: "spicy" },
+  { id: 9, name: "Chypre", img: "/scents/sub/chypre.webp", slug: "chypre" },
+  { id: 10, name: "Tobacco", img: "/scents/sub/tobacco.webp", slug: "tobacco" },
+  {
+    id: 11,
+    name: "Gourmand",
+    img: "/scents/sub/gourmand.webp",
+    slug: "gourmand",
+  },
+  {
+    id: 12,
+    name: "Ambery (Oriental)",
+    img: "/scents/sub/ambery.webp",
+    slug: "ambery-oriental",
+  },
+  { id: 13, name: "Leather", img: "/scents/sub/leather.webp", slug: "leather" },
+  {
+    id: 14,
+    name: "Musk Skin",
+    img: "/scents/sub/musk-skin.webp",
+    slug: "musk-skin",
+  },
 ];
 
 export default function SubScentsFilter() {
@@ -26,7 +51,7 @@ export default function SubScentsFilter() {
   return (
     <>
       <AnimatePresence>
-        {selectedScent !== -1 && (
+        {selectedScent && (
           <>
             <motion.div
               initial={{ height: 0, opacity: 0 }}
@@ -64,23 +89,23 @@ export default function SubScentsFilter() {
                 >
                   {subScents.map((subScent) => (
                     <div
-                      key={subScent.id}
+                      key={subScent.slug}
                       className={`w-[200px] h-[200px] relative group cursor-pointer px-4 hover:scale-105 transition-transform duration-300`}
-                      onClick={() => toggleSubScent(subScent.id)}
+                      onClick={() => toggleSubScent(subScent.slug)}
                     >
                       <Image
                         src={subScent.img}
-                        alt={subScent.name}
+                        alt={subScent.slug}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 40vw"
                         className={`object-cover transition-all duration-300 px-4 ${
-                          selectedSubScents.includes(subScent.id)
+                          selectedSubScents.includes(subScent.slug)
                             ? "grayscale-0 opacity-100"
                             : "grayscale"
                         }`}
                       />
 
-                      {!selectedSubScents.includes(subScent.id) && (
+                      {!selectedSubScents.includes(subScent.slug) && (
                         <div className="absolute inset-0 bg-black opacity-60 group-hover:opacity-0 transition-opacity duration-500"></div>
                       )}
 

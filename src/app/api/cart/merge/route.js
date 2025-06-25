@@ -28,6 +28,7 @@ export async function POST() {
       const index = userCart.items.findIndex(
         (i) => i.productId.toString() === item.productId.toString()
       );
+
       if (index >= 0) {
         userCart.items[index].quantity += item.quantity;
       } else {

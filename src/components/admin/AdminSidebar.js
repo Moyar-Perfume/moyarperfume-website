@@ -18,11 +18,18 @@ export default function AdminSidebar() {
           id: "1.2",
           label: "Thêm sản phẩm",
           path: "/admin/manage-product/add-product",
+          disabled: true,
         },
         {
           id: "1.3",
           label: "Thêm hàng loạt",
           path: "/admin/manage-product/bulk-add",
+          disabled: true,
+        },
+        {
+          id: "1.4",
+          label: "Lấy dữ liệu sản phẩm từ Nhanh.vn",
+          path: "/admin/manage-product/nhanhvn-sync",
         },
       ],
     },
@@ -45,7 +52,8 @@ export default function AdminSidebar() {
     },
   ];
 
-  const handleItemClick = (path) => {
+  const handleItemClick = (path, disabled) => {
+    if (disabled) return;
     router.push(path);
   };
 
@@ -61,8 +69,13 @@ export default function AdminSidebar() {
               {group.items.map((item) => (
                 <li
                   key={item.id}
-                  className={`px-3 py-1 cursor-pointer flex items-center text-sm hover:underline`}
-                  onClick={() => handleItemClick(item.path, item.id)}
+                  className={`px-3 py-1 flex items-center text-sm 
+      ${
+        item.disabled
+          ? "text-gray-400 cursor-not-allowed"
+          : "cursor-pointer hover:underline"
+      }`}
+                  onClick={() => handleItemClick(item.path, item.disabled)}
                 >
                   {item.label}
                 </li>

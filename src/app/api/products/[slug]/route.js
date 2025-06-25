@@ -1,7 +1,7 @@
 import { connectDB } from "@/libs/mongoDB";
-import Product from "@/models/Product";
 import "@/models/Brand"; // Import Brand model to ensure it's registered
 import { NextResponse } from "next/server";
+import ProductNhanhvn from "@/models/ProductNhanhvn";
 
 export async function GET(req, { params }) {
   try {
@@ -10,7 +10,7 @@ export async function GET(req, { params }) {
     const { slug } = params;
 
     // Make sure the Brand model is loaded before using populate
-    const product = await Product.findOne({ slug }).populate("brandID");
+    const product = await ProductNhanhvn.findOne({ slug }).populate("brandID");
 
     if (!product) {
       console.log("Product not found with slug:", slug);

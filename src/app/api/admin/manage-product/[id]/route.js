@@ -106,6 +106,27 @@ export async function PUT(req, { params }) {
     const updateData = await req.json();
     updateData.updatedAt = new Date();
 
+    if (updateData.tags && Array.isArray(updateData.tags)) {
+      const khuyenDungTag = updateData.tags.find((tag) =>
+        tag.startsWith("khuyendung_")
+      );
+
+      if (khuyenDungTag) {
+        const parts = khuyenDungTag.split("_").slice(1).map(Number); // [50, 80, 60, 50]
+        const muaTags = parts
+          .map((val, idx) => (val > 50 ? `mua_${idx + 1}` : null)) // mùa 1 (xuân), 2 (hạ), ...
+          .filter(Boolean); // bỏ null
+
+        // Xóa tag mua_ nếu có sẵn, để tránh trùng
+        updateData.tags = updateData.tags.filter(
+          (tag) => !tag.startsWith("mua_")
+        );
+
+        // Gộp lại
+        updateData.tags.push(...muaTags);
+      }
+    }
+
     // const imagesFromClient = updateData.images || [];
     // const uploadedImages = [];
 
@@ -158,6 +179,7 @@ export async function PUT(req, { params }) {
     // updateData.images = uploadedImages;
 
     // Cập nhật vào MongoDB
+
     const updatedProduct = await ProductNhanhvn.findByIdAndUpdate(
       id,
       { $set: updateData },
