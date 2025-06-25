@@ -7,7 +7,7 @@ import Brand from "@/models/Brand";
 import { NextResponse } from "next/server";
 
 // Tăng thời gian timeout cho API route này
-export const maxDuration = 300; // 300 seconds = 5 phút, tăng lên tùy theo nhu cầu
+export const maxDuration = 60; // 300 seconds = 5 phút, tăng lên tùy theo nhu cầu
 
 // Function to get brandID from name or create new if not exists
 async function getBrandIdByName(name) {

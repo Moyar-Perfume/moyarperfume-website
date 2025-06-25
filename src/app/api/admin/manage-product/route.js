@@ -91,8 +91,7 @@ import { NextResponse } from "next/server";
 export async function GET(req) {
   await connectDB();
   try {
-    const url = new URL(req.url);
-    const searchParams = url.searchParams;
+    const searchParams = req.nextURL.searchParams;
 
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
