@@ -6,6 +6,7 @@ import Link from "next/link";
 import Search from "@/components/shared/Search";
 import Marquee from "react-fast-marquee";
 import { useCart } from "@/contexts/CartContext";
+import { useSession } from "next-auth/react";
 
 const menuItems = [
   { name: "RECOMMENDATIONS", path: "/recommendations" },
@@ -22,7 +23,7 @@ const mobileIcons = [
 
 const desktopIcons = [
   { src: "/icon/search.svg", alt: "Search" },
-  { src: "/icon/user.svg", alt: "User", path: "/profile" },
+  { src: "/icon/user.svg", alt: "User", path: "/profile/login" },
   { src: "/icon/cart.svg", alt: "Cart" },
 ];
 
@@ -31,6 +32,8 @@ export default function Navbar() {
   const [scrollY, setScrollY] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -160,28 +163,58 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Desktop Icons */}
+        {/* Desktop Icons User */}
         <div className="hidden xl:flex items-center gap-8 z-20 pr-4">
-          {desktopIcons.map((icon, index) => (
-            <div
-              key={index}
-              className="relative w-[20px] h-[20px] cursor-pointer"
-              onClick={() => handleIconClick(icon.alt)}
-            >
-              {icon.path ? (
-                <Link href={icon.path}>
-                  <Image src={icon.src} fill alt={icon.alt} />
+          {desktopIcons.map((icon, index) => {
+            if (icon.alt === "User") {
+              if (status === "loading") {
+                return (
+                  <div
+                    key={index}
+                    className="w-[20px] h-[20px] bg-gray-200 rounded-full animate-pulse"
+                  ></div>
+                );
+              }
+              // Khi đã đăng nhập
+              if (status === "authenticated") {
+                return (
+                  <Link
+                    key={index}
+                    href="/profile" // Dẫn tới trang cá nhân
+                    className="relative w-[20px] h-[20px] cursor-pointer"
+                  >
+                    <Image src={icon.src} fill alt={icon.alt} />
+                  </Link>
+                );
+              }
+              // Khi chưa đăng nhập
+              return (
+                <Link
+                  key={index}
+                  href="/profile/login" // Dẫn tới trang đăng nhập
+                  className="uppercase font-gotu text-[16px] hover:text-gray-500 transition-all pt-[3px]"
+                >
+                  LOGIN
                 </Link>
-              ) : (
+              );
+            }
+
+            // Xử lý các icon khác (Search, Cart)
+            return (
+              <div
+                key={index}
+                className="relative w-[20px] h-[20px] cursor-pointer"
+                onClick={() => handleIconClick(icon.alt)}
+              >
                 <Image src={icon.src} fill alt={icon.alt} />
-              )}
-              {icon.alt === "Cart" && (
-                <span className="absolute -top-2 -right-2 bg-floral text-black text-[10px] px-1 rounded-full">
-                  {totalQuantity}
-                </span>
-              )}
-            </div>
-          ))}
+                {icon.alt === "Cart" && totalQuantity > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-floral text-black text-[10px] px-1 rounded-full">
+                    {totalQuantity}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 

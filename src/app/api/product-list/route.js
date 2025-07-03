@@ -6,7 +6,7 @@ import "@/models/Brand"; // Đảm bảo Brand vẫn được import
 export async function GET(req) {
   await connectDB();
   try {
-    const searchParams = req.nextURL.searchParams;
+    const { searchParams } = new URL(req.url);
 
     const page = searchParams.get("page")
       ? parseInt(searchParams.get("page"))
@@ -14,12 +14,12 @@ export async function GET(req) {
     const limit = searchParams.get("limit")
       ? parseInt(searchParams.get("limit"))
       : 12;
+
     const exclude = searchParams.get("exclude");
     const productId = searchParams.get("productId");
     const gioitinh = searchParams.get("gender");
     const search = searchParams.get("search") || "";
-    const nongdo = searchParams.getAll("nongdo");
-    const mua = searchParams.getAll("mua");
+    const scent = searchParams.get("scent");
 
     const latest = searchParams.get("latest") === "true";
 
@@ -31,15 +31,9 @@ export async function GET(req) {
       ? parseInt(searchParams.get("maxPrice"))
       : null;
 
-    // const tags = searchParams.get("tags")
-    //   ? JSON.parse(searchParams.get("tags"))
-    //   : [];
-
-    const scent = searchParams.get("scent");
+    const nongdo = searchParams.getAll("nongdo");
+    const mua = searchParams.getAll("mua");
     const subScent = searchParams.getAll("subScent");
-
-    console.log("subScent:", subScent);
-
     const brands = searchParams.getAll("brands");
 
     let query = {};
@@ -92,12 +86,14 @@ export async function GET(req) {
 
     if (minPrice !== null || maxPrice !== null) {
       query.variants = { $elemMatch: { available: true } };
+
       if (minPrice !== null) {
         query.variants.$elemMatch.price = {
           ...query.variants.$elemMatch.price,
           $gte: minPrice,
         };
       }
+
       if (maxPrice !== null) {
         query.variants.$elemMatch.price = {
           ...query.variants.$elemMatch.price,

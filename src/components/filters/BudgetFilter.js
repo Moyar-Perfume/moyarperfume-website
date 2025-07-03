@@ -4,10 +4,17 @@ import { useState } from "react";
 import Image from "next/image";
 import { ConfigProvider, Slider } from "antd";
 import { useFilter } from "@/contexts/FilterContext";
+import PriceDistributionChart from "../shared/PriceDistributionChart";
 
 export default function BudgetFilter() {
-  const { budget, setBudget, budgetRange, formatPrice, budgetLoading } =
-    useFilter();
+  const {
+    budget,
+    setBudget,
+    budgetRange,
+    formatPrice,
+    budgetLoading,
+    allProductPrices,
+  } = useFilter();
   const [tempBudget, setTempBudget] = useState(budget);
   const [editingField, setEditingField] = useState(null); // 'min' | 'max' | null
   const [inputValue, setInputValue] = useState(null);
@@ -35,13 +42,26 @@ export default function BudgetFilter() {
       </div>
 
       <div className="w-[60%] h-[120px] relative overflow-hidden">
-        <Image
+        {/* <Image
           src="/element/budget.png"
           alt="Budget image showing perfume price range"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 40vw"
           fill
           className="object-cover"
-        />
+        /> */}
+
+        {budgetLoading ? (
+          <div className="w-full h-full bg-gray-700/50 animate-pulse rounded-md" />
+        ) : (
+          allProductPrices &&
+          allProductPrices.length > 0 && (
+            <PriceDistributionChart
+              productPrices={allProductPrices}
+              minPrice={budgetRange[0]}
+              maxPrice={budgetRange[1]}
+            />
+          )
+        )}
 
         {budgetLoading === false && (
           <>

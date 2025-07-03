@@ -1,11 +1,32 @@
+"use client";
+
 import { useFilter } from "@/contexts/FilterContext";
 import useBrands from "@/hooks/useBrands";
-import { Spin } from "antd";
+// Không cần dùng Spin và Loading nữa
+// import { Spin } from "antd";
+// import Loading from "../shared/Loading";
 
 export default function BrandFilter() {
   const { selectedBrands, toggleBrand } = useFilter();
 
+  // Giữ lại logic fetch riêng của useBrands
   const { brands, loading: loadingBrand } = useBrands();
+
+  // Hàm render các khung chờ (skeleton)
+  const renderSkeletons = () => {
+    return (
+      <div className="max-h-[200px] overflow-y-auto grid gap-4 custom-scrollbar pr-2">
+        {Array(6) // Hiển thị 6 dòng chờ
+          .fill(0)
+          .map((_, index) => (
+            <li key={index} className="flex items-center gap-4 animate-pulse">
+              <div className="p-[10px] bg-gray-700/80 rounded"></div>
+              <div className="h-4 bg-gray-700/80 rounded w-28"></div>
+            </li>
+          ))}
+      </div>
+    );
+  };
 
   return (
     <div className="items-center w-full flex-col flex">
@@ -14,11 +35,10 @@ export default function BrandFilter() {
           Brand
         </span>
       </div>
-      {/* Nếu đang loading thì hiển thị spinner */}
+
+      {/* SỬA LỖI: Hiển thị skeleton UI khi loadingBrand là true */}
       {loadingBrand ? (
-        <div className="flex justify-center items-center h-[200px]">
-          <Spin />
-        </div>
+        renderSkeletons()
       ) : (
         <div>
           <ul className="max-h-[200px] overflow-y-auto grid gap-4 custom-scrollbar pr-2">

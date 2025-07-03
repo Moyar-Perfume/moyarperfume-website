@@ -1,112 +1,10 @@
-"use client";
-
-import api from "@/constants/apiURL";
-import { useEffect, useState } from "react";
-import Product from "@/components/product/Product";
-import { useFilter } from "@/contexts/FilterContext";
 import ScrollToTopButton from "@/components/shared/ScrollToTopButton";
+import Product from "@/components/product/Product";
+import useProductList from "@/hooks/useProductList";
 
 export default function ProductList() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalProducts, setTotalProducts] = useState(0);
-  const productsPerPage = 8;
-
-  const {
-    selectedConcents,
-    selectedSeasons,
-    budget,
-    budgetRange,
-    selectedBrands,
-    selectedScent,
-    selectedSubScents,
-  } = useFilter();
-
-  const [budgetStart, budgetEnd] = budget;
-  const [minRange, maxRange] = budgetRange;
-
-  const minPrice = Math.floor(
-    minRange + ((maxRange - minRange) * budgetStart) / 100
-  );
-  const maxPrice = Math.ceil(
-    minRange + ((maxRange - minRange) * budgetEnd) / 100
-  );
-
-  const buildQueryParams = () => {
-    const queryParams = new URLSearchParams();
-
-    queryParams.append("page", currentPage);
-    queryParams.append("limit", productsPerPage);
-
-    selectedConcents.forEach((name) => {
-      queryParams.append("nongdo", name);
-    });
-
-    selectedSeasons.forEach((id) => {
-      queryParams.append("mua", id);
-    });
-
-    if (minPrice !== undefined && maxPrice !== undefined) {
-      queryParams.append("minPrice", minPrice);
-      queryParams.append("maxPrice", maxPrice);
-    }
-
-    selectedBrands.forEach((id) => {
-      queryParams.append("brands", id);
-    });
-
-    if (selectedScent) {
-      queryParams.append("scent", selectedScent);
-    }
-
-    if (selectedSubScents.length) {
-      selectedSubScents.forEach((slug) => {
-        queryParams.append("subScent", slug);
-      });
-    }
-
-    return queryParams;
-  };
-
-  const fetchProducts = async (page = 1) => {
-    setLoading(true);
-
-    try {
-      const queryParams = buildQueryParams();
-      queryParams.set("page", page);
-
-      const response = await api.get(`/product-list?${queryParams.toString()}`);
-      const { products: newProducts, pagination } = response.data;
-
-      setProducts(newProducts);
-      setTotalPages(pagination.totalPages);
-      setTotalProducts(pagination.totalProducts);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProducts(1);
-    setCurrentPage(1);
-  }, [
-    selectedConcents,
-    selectedSeasons,
-    minPrice,
-    maxPrice,
-    selectedBrands,
-    selectedScent,
-    selectedSubScents,
-  ]);
-
-  useEffect(() => {
-    fetchProducts(currentPage);
-  }, [currentPage]);
+  const { products, loading, currentPage, totalPages, handlePageChange } =
+    useProductList();
 
   const renderSkeletons = () => {
     return Array(8)
@@ -126,12 +24,6 @@ export default function ProductList() {
       ));
   };
 
-  const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages && page !== currentPage) {
-      setCurrentPage(page);
-    }
-  };
-
   const getPaginationNumbers = (current, total) => {
     const pages = [];
     if (total <= 7) {
@@ -139,8 +31,8 @@ export default function ProductList() {
     } else {
       pages.push(1);
       if (current > 4) pages.push("...");
-      const start = Math.max(2, current - 1);
-      const end = Math.min(total - 1, current + 1);
+      const start = Math.max(2, current - 2);
+      const end = Math.min(total - 1, current + 2);
       for (let i = start; i <= end; i++) pages.push(i);
       if (current < total - 3) pages.push("...");
       pages.push(total);
@@ -155,8 +47,8 @@ export default function ProductList() {
         {loading ? (
           renderSkeletons()
         ) : products.length > 0 ? (
-          products.map((product, index) => (
-            <div key={`${product.slug}-${index}`}>
+          products.map((product) => (
+            <div key={`${product.slug}`}>
               <Product product={product} imageSize="h-[300px]" />
             </div>
           ))
@@ -171,7 +63,7 @@ export default function ProductList() {
       </section>
 
       {/* Phân trang */}
-      {totalPages > 1 && (
+      {totalPages > 1 && !loading && (
         <div className="flex justify-center items-center gap-2 text-sm flex-wrap my-10">
           <button
             onClick={() => handlePageChange(currentPage - 1)}

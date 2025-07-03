@@ -1,173 +1,121 @@
-import { useState, useEffect } from "react";
-import Image from "next/image";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Product from "../product/Product";
-
-// Danh sách từ khóa gợi ý
-const suggestedKeywords = [
-  // Thương hiệu nước hoa
-  "Dior",
-  "Chanel",
-  "Versace",
-  "Gucci",
-  "Tom Ford",
-  "Prada",
-  "Yves Saint Laurent",
-  "Jo Malone",
-  "Byredo",
-  "Maison Francis Kurkdjian",
-  "Creed",
-  "Amouage",
-
-  // Phân loại theo giới tính
-  "Dior Nam",
-  "Dior Nữ",
-  "Chanel Nam",
-  "Chanel Nữ",
-  "Versace Nam",
-  "Versace Nữ",
-  "Nước hoa Nam",
-  "Nước hoa Nữ",
-  "Nước hoa Unisex",
-
-  // Phân loại theo mùi hương
-  "Hương hoa",
-  "Hương gỗ",
-  "Hương trái cây",
-  "Hương phương Đông",
-  "Hương biển",
-  "Hương cam quýt",
-
-  // Phân loại theo nồng độ/loại
-  "Eau de Parfum",
-  "Eau de Toilette",
-  "Parfum",
-  "Nước hoa mini",
-  "Gift set",
-  "Bộ quà tặng",
-
-  // Phân loại theo mùa/thời gian
-  "Nước hoa mùa hè",
-  "Nước hoa mùa đông",
-  "Nước hoa ngày",
-  "Nước hoa đêm",
-];
-
-// Danh sách kết quả tìm kiếm mẫu
-const sampleResults = [
-  {
-    id: 1,
-    name: "Sauvage",
-    brand: "Dior",
-    description: "Eau de Parfum dành cho nam giới",
-    images: ["/product/product-01.jpg"],
-    price: 140,
-    formulation: "Hương gỗ phương Đông",
-    volumes: [
-      { size: "50ml", price: 90 },
-      { size: "100ml", price: 140 },
-      { size: "200ml", price: 190 },
-    ],
-  },
-  {
-    id: 2,
-    name: "No.5",
-    brand: "Chanel",
-    description: "Eau de Parfum biểu tượng cho phái nữ",
-    images: ["/product/product-02.jpg"],
-    price: 160,
-    formulation: "Hương hoa cổ điển",
-    volumes: [
-      { size: "50ml", price: 110 },
-      { size: "100ml", price: 160 },
-    ],
-  },
-  {
-    id: 3,
-    name: "Bleu",
-    brand: "Chanel",
-    description: "Eau de Parfum dành cho nam giới hiện đại",
-    images: ["/product/product-03.jpg"],
-    price: 130,
-    formulation: "Hương gỗ thơm",
-    volumes: [
-      { size: "50ml", price: 80 },
-      { size: "100ml", price: 130 },
-      { size: "150ml", price: 170 },
-    ],
-  },
-];
+import Loading from "./Loading";
 
 export default function Search({ isOpen, onClose }) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredKeywords, setFilteredKeywords] = useState([]);
-  const [results, setResults] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("Shampoo");
+  const [results, setResults] = useState({
+    products: { items: [], pagination: {} },
+    brands: { items: [] },
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const searchInputRef = useRef(null);
 
-  // Kiểm soát overflow của body khi mở/đóng search
+  // Hàm gọi API, xử lý cả lần tải đầu và các lần tải thêm
+  const fetchResults = useCallback(async (term, page) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/search?q=${term}&page=${page}`);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+
+      setResults((prev) => ({
+        // Giữ lại kết quả brand từ lần tìm kiếm đầu tiên
+        brands: page === 1 ? data.results.brands : prev.brands,
+        // Nếu là trang 1, thay thế sản phẩm. Nếu không, nối vào danh sách cũ.
+        products: {
+          items:
+            page === 1
+              ? data.results.products.items
+              : [...prev.products.items, ...data.results.products.items],
+          pagination: data.results.products.pagination,
+        },
+      }));
+      setHasMore(data.results.products.pagination.hasMore);
+      setCurrentPage(page);
+    } catch (err) {
+      setError("Không thể tải kết quả. Vui lòng thử lại.");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Debounce effect để tìm kiếm khi người dùng ngừng gõ
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (searchTerm.trim() === "") {
+        // Reset tất cả state khi ô tìm kiếm trống
+        setResults({
+          products: { items: [], pagination: {} },
+          brands: { items: [] },
+        });
+        setIsLoading(false);
+        setCurrentPage(1);
+        setHasMore(false);
+        setError(null);
+        return;
+      }
+
+      // Khi có từ khóa tìm kiếm mới, reset state và bắt đầu lại từ trang 1
+      setCurrentPage(1);
+      setHasMore(false);
+      setResults({
+        products: { items: [], pagination: {} },
+        brands: { items: [] },
+      });
+      fetchResults(searchTerm, 1);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm, fetchResults]);
+
+  // Xử lý khi mở/đóng modal
   useEffect(() => {
     if (isOpen) {
-      // Ngăn scroll trang
       document.body.style.overflow = "hidden";
+      searchInputRef.current?.focus();
     } else {
-      // Cho phép scroll trang
       document.body.style.overflow = "auto";
     }
-
-    // Cleanup function khi component unmount
     return () => {
       document.body.style.overflow = "auto";
     };
   }, [isOpen]);
 
-  // Lọc từ khóa gợi ý dựa trên searchTerm
-  useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredKeywords(suggestedKeywords);
-      setResults([]);
-    } else {
-      const filtered = suggestedKeywords.filter((keyword) =>
-        keyword.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredKeywords(filtered);
-
-      // Giả lập kết quả tìm kiếm
-      setResults(
-        sampleResults.filter(
-          (item) =>
-            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.description.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
-    }
-  }, [searchTerm]);
-
-  // Mặc định hiển thị tất cả từ khóa gợi ý ban đầu
-  useEffect(() => {
-    if (isOpen) {
-      setFilteredKeywords(suggestedKeywords);
-    }
-  }, [isOpen]);
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    // Xử lý tìm kiếm với searchTerm
-    console.log("Searching for:", searchTerm);
-    // Giả lập kết quả tìm kiếm
-    setResults(sampleResults);
-  };
+  // Logic cho Intersection Observer để cuộn vô hạn
+  const observer = useRef();
+  const lastProductElementRef = useCallback(
+    (node) => {
+      if (isLoading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          fetchResults(searchTerm, currentPage + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, hasMore, fetchResults, searchTerm, currentPage]
+  );
 
   const handleSelectKeyword = (keyword) => {
     setSearchTerm(keyword);
-    setSelectedCategory(keyword);
-    // Giả lập kết quả tìm kiếm khi chọn keyword
-    setResults(
-      sampleResults.filter(
-        (item) => item.name.includes(keyword) || keyword.includes(item.name)
-      )
-    );
   };
 
-  const resultCount = results.length;
+  const productResults = results.products?.items || [];
+
+  console.log("Search results:", productResults);
+
+  const brandResults = results.brands?.items || [];
 
   return (
     <div
@@ -195,14 +143,14 @@ export default function Search({ isOpen, onClose }) {
                 />
               </svg>
             </div>
-            <form onSubmit={handleSearch} className="flex-1">
+            <form onSubmit={(e) => e.preventDefault()} className="flex-1">
               <input
+                ref={searchInputRef}
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Nước hoa nam"
+                placeholder="Tìm kiếm sản phẩm, thương hiệu..."
                 className="w-full py-2 px-2 text-lg focus:outline-none"
-                autoFocus={isOpen}
               />
             </form>
             <button
@@ -227,103 +175,118 @@ export default function Search({ isOpen, onClose }) {
           </div>
         </div>
 
-        {/* Content area - Responsive layout: column on mobile, row on desktop */}
+        {/* Content area */}
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-          {/* Suggested keywords - Full width on mobile, 1/4 width on desktop */}
+          {/* Suggested brands - Cột bên trái */}
           <div className="md:w-1/4 border-b md:border-b-0 md:border-r border-gray-200 overflow-y-auto py-4 px-4">
-            <h3 className="text-base font-medium mb-3">Suggested</h3>
-            {/* On mobile: horizontal scrolling buttons */}
-            <div className="flex md:hidden overflow-x-auto pb-2 gap-2 hide-scrollbar">
-              {filteredKeywords.map((keyword, index) => (
-                <button
-                  key={index}
-                  className={`text-sm whitespace-nowrap px-3 py-1.5 rounded-full border flex-shrink-0 transition-colors ${
-                    selectedCategory === keyword
-                      ? "bg-black text-white border-black"
-                      : "border-gray-200 hover:border-gray-400"
-                  }`}
-                  onClick={() => handleSelectKeyword(keyword)}
-                >
-                  {keyword}
-                </button>
-              ))}
-            </div>
-
-            {/* On desktop: vertical list */}
-            <ul className="hidden md:block space-y-3">
-              {filteredKeywords.map((keyword, index) => (
-                <li key={index}>
-                  <button
-                    className={`text-left w-full py-1 text-sm hover:text-gray-600 transition-colors ${
-                      selectedCategory === keyword ? "font-medium" : ""
-                    }`}
-                    onClick={() => handleSelectKeyword(keyword)}
-                  >
-                    {keyword}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            {brandResults.length > 0 && (
+              <>
+                <h3 className="text-base font-medium mb-3">Thương hiệu</h3>
+                <ul className="space-y-3">
+                  {brandResults.map((brand) => (
+                    <li key={brand._id}>
+                      <button
+                        className="text-left w-full py-1 text-sm hover:text-gray-600 transition-colors"
+                        onClick={() => handleSelectKeyword(brand.name)}
+                      >
+                        {brand.name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {searchTerm &&
+              !isLoading &&
+              brandResults.length === 0 &&
+              productResults.length > 0 && (
+                <p className="text-sm text-gray-400">
+                  Không có thương hiệu nào.
+                </p>
+              )}
           </div>
 
-          {/* Search results - Full width on mobile, 3/4 width on desktop */}
+          {/* Search results - Khu vực chính */}
           <div className="md:w-3/4 flex-1 overflow-y-auto">
-            {/* Results count */}
-            {resultCount > 0 && (
-              <div className="px-6 py-3 border-b border-gray-200">
-                <p className="text-sm text-gray-500">{resultCount} results</p>
+            {/* Cấu trúc hiển thị được tổ chức lại */}
+            {isLoading && productResults.length === 0 ? (
+              // Case 1: Đang tải cho lần tìm kiếm mới (toàn khu vực)
+              <div className="p-6 text-center relative flex items-center justify-center h-full">
+                <Loading />
               </div>
-            )}
-
-            {/* Results grid */}
-            <div className="p-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {results.map((product) => (
-                  <div key={product.id} className="p-2">
-                    <Product
-                      product={product}
-                      imageSize="h-[200px]"
-                      showLikeButton={true}
-                    />
+            ) : error ? (
+              // Case 2: Xảy ra lỗi
+              <div className="p-6 text-center text-red-500">{error}</div>
+            ) : (
+              // Case 3: Hiển thị nội dung (kết quả, không có kết quả, hoặc trạng thái ban đầu)
+              <>
+                {productResults.length > 0 && (
+                  <div className="px-6 py-3 border-b border-gray-200">
+                    <p className="text-sm text-gray-500">
+                      {results.products.pagination.totalProducts} kết quả sản
+                      phẩm
+                    </p>
                   </div>
-                ))}
-              </div>
+                )}
+                <div className="p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {productResults.map((product, index) => {
+                      // Gán ref cho phần tử cuối cùng để kích hoạt infinite scroll
+                      if (productResults.length === index + 1) {
+                        return (
+                          <div
+                            ref={lastProductElementRef}
+                            key={product._id}
+                            className="p-2"
+                          >
+                            <Product product={product} />
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div key={product._id} className="p-2">
+                            <Product product={product} />
+                          </div>
+                        );
+                      }
+                    })}
+                  </div>
 
-              {/* Show message when no results */}
-              {searchTerm && results.length === 0 && (
-                <div className="p-6 text-center">
-                  <p className="text-gray-500">
-                    No results found for "{searchTerm}"
-                  </p>
-                  <p className="text-sm text-gray-400 mt-2">
-                    Please try another search term or browse our categories
-                  </p>
-                </div>
-              )}
+                  {/* Spinner khi tải thêm sản phẩm (chỉ hiện ở cuối) */}
+                  {isLoading && productResults.length > 0 && (
+                    <div className="flex py-6 relative w-full">
+                      <Loading />
+                    </div>
+                  )}
 
-              {/* Show initial state when no search term */}
-              {!searchTerm && results.length === 0 && (
-                <div className="p-6 text-center">
-                  <p className="text-gray-500">
-                    Enter a search term or select a category
-                  </p>
+                  {/* Thông báo khi không có kết quả */}
+                  {searchTerm &&
+                    !isLoading &&
+                    productResults.length === 0 &&
+                    brandResults.length === 0 && (
+                      <div className="p-6 text-center">
+                        <p className="text-gray-500">
+                          Không tìm thấy kết quả cho "{searchTerm}"
+                        </p>
+                        <p className="text-sm text-gray-400 mt-2">
+                          Vui lòng thử một từ khóa khác.
+                        </p>
+                      </div>
+                    )}
+                  {/* Thông báo ban đầu */}
+                  {!searchTerm && (
+                    <div className="p-6 text-center">
+                      <p className="text-gray-500">
+                        Nhập từ khóa để bắt đầu tìm kiếm.
+                      </p>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </>
+            )}
           </div>
         </div>
       </div>
-
-      {/* Add scrollbar hiding style */}
-      <style jsx global>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
     </div>
   );
 }

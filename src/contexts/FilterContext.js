@@ -1,6 +1,6 @@
 import api from "@/constants/apiURL";
 import { responsiveArray } from "antd/es/_util/responsiveObserver";
-import { createContext, useContext, useState, useEffect, useRef } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const DataContext = createContext();
 
@@ -10,8 +10,9 @@ export function useFilter() {
 
 export function FilterContext({ children }) {
   // Budget
-  const [budgetRange, setBudgetRange] = useState([0, 10000000]); // Default range from 0 to 10,000,000 VND
-  const [budget, setBudget] = useState([0, 100]); // Default budget range from 0% to 100%
+  const [budget, setBudget] = useState([0, 100]);
+  const [budgetRange, setBudgetRange] = useState([]);
+  const [allProductPrices, setAllProductPrices] = useState([]);
 
   const [budgetLoading, setBudgetLoading] = useState(true);
 
@@ -21,7 +22,8 @@ export function FilterContext({ children }) {
       try {
         const res = await api.get("/product-list/price-range");
 
-        setBudgetRange([res.data.minPrice, res.data.maxPrice]);
+        setBudgetRange(res.data.budgetRange);
+        setAllProductPrices(res.data.allPrices);
       } catch (err) {
         console.error("Failed to fetch price range", err);
       } finally {
@@ -91,8 +93,6 @@ export function FilterContext({ children }) {
     setSelectedScent();
   };
 
-  console.log("Selected Scent:", selectedScent);
-
   // Sub-Scents
   const [selectedSubScents, setSelectedSubScents] = useState([]);
 
@@ -104,8 +104,6 @@ export function FilterContext({ children }) {
     );
   };
 
-  console.log("Selected Sub-Scents:", selectedSubScents);
-
   return (
     <DataContext.Provider
       value={{
@@ -115,6 +113,7 @@ export function FilterContext({ children }) {
         budgetRange,
         formatPrice,
         budgetLoading,
+        allProductPrices,
 
         //Season
         selectedSeasons,
