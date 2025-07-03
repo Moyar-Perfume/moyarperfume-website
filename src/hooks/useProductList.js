@@ -1,7 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import api from "@/constants/apiURL";
-import { useEffect, useState, useCallback } from "react";
 import { useFilter } from "@/contexts/FilterContext";
 
 export default function useProductList() {
@@ -11,8 +11,10 @@ export default function useProductList() {
   const [totalPages, setTotalPages] = useState(1);
   const productsPerPage = 8;
 
-  // Lấy tất cả các bộ lọc từ context
-  const filters = useFilter();
+  // --- LOGIC ĐÃ SỬA LỖI HOÀN CHỈNH ---
+  // 1. Thêm một state "trigger" để buộc fetch lại khi cần
+  const [fetchTrigger, setFetchTrigger] = useState(0);
+
   const {
     budget,
     selectedConcents,
@@ -22,7 +24,7 @@ export default function useProductList() {
     selectedScent,
     selectedSubScents,
     budgetLoading,
-  } = filters;
+  } = useFilter();
 
   const [minRange, maxRange] = budgetRange;
   const [budgetStart, budgetEnd] = budget;
@@ -34,15 +36,39 @@ export default function useProductList() {
     minRange + ((maxRange - minRange) * budgetEnd) / 100
   );
 
-  // Hàm fetch sản phẩm, được bọc trong useCallback để tối ưu
-  const fetchProducts = useCallback(
-    async (pageToFetch) => {
-      if (budgetLoading || isNaN(minPrice) || isNaN(maxPrice)) return;
+  // 2. Effect này chỉ có nhiệm vụ reset trang và kích hoạt trigger khi bộ lọc thay đổi
+  useEffect(() => {
+    // Không chạy khi context đang tải lần đầu
+    if (budgetLoading) return;
 
+    // Khi bộ lọc thay đổi, ta luôn muốn fetch lại từ trang 1
+    setCurrentPage(1);
+    // Kích hoạt trigger để đảm bảo useEffect fetch sẽ chạy
+    setFetchTrigger((c) => c + 1);
+  }, [
+    // Danh sách dependencies chỉ bao gồm các giá trị của bộ lọc.
+    minPrice,
+    maxPrice,
+    selectedConcents,
+    selectedSeasons,
+    selectedBrands,
+    selectedScent,
+    selectedSubScents,
+  ]);
+
+  // 3. Effect này là nơi duy nhất gọi API.
+  // Nó sẽ chạy khi `currentPage` thay đổi (do người dùng) HOẶC khi `fetchTrigger` thay đổi (do bộ lọc).
+  useEffect(() => {
+    // Chờ context tải xong và giá hợp lệ mới fetch
+    if (budgetLoading || isNaN(minPrice) || isNaN(maxPrice)) {
+      return;
+    }
+
+    const fetchProducts = async () => {
       setLoading(true);
       try {
         const queryParams = new URLSearchParams({
-          page: pageToFetch,
+          page: currentPage,
           limit: productsPerPage,
           minPrice: minPrice,
           maxPrice: maxPrice,
@@ -53,11 +79,9 @@ export default function useProductList() {
         selectedSeasons.forEach((id) => queryParams.append("mua", id));
         selectedBrands.forEach((id) => queryParams.append("brands", id));
         if (selectedScent) queryParams.append("scent", selectedScent);
-        if (selectedSubScents.length) {
-          selectedSubScents.forEach((slug) =>
-            queryParams.append("subScent", slug)
-          );
-        }
+        selectedSubScents.forEach((slug) =>
+          queryParams.append("subScent", slug)
+        );
 
         const response = await api.get(
           `/product-list?${queryParams.toString()}`
@@ -70,46 +94,11 @@ export default function useProductList() {
       } finally {
         setLoading(false);
       }
-    },
-    [
-      budgetLoading,
-      minPrice,
-      maxPrice,
-      selectedConcents,
-      selectedSeasons,
-      selectedBrands,
-      selectedScent,
-      selectedSubScents,
-    ]
-  );
+    };
 
-  // useEffect này chạy khi các BỘ LỌC thay đổi
-  useEffect(() => {
-    if (budgetLoading) return;
-    if (currentPage !== 1) {
-      setCurrentPage(1); // Sẽ trigger useEffect bên dưới
-    } else {
-      fetchProducts(1); // Nếu đã ở trang 1, tự fetch
-    }
-  }, [
-    budgetLoading,
-    selectedConcents,
-    selectedSeasons,
-    minPrice,
-    maxPrice,
-    selectedBrands,
-    selectedScent,
-    selectedSubScents,
-    fetchProducts,
-  ]);
+    fetchProducts();
+  }, [currentPage, fetchTrigger, budgetLoading]); // Chỉ phụ thuộc vào currentPage, trigger và budgetLoading
 
-  // useEffect này chỉ chạy khi SỐ TRANG thay đổi
-  useEffect(() => {
-    if (budgetLoading) return;
-    fetchProducts(currentPage);
-  }, [currentPage, fetchProducts, budgetLoading]);
-
-  // Trả về các giá trị và hàm cần thiết cho component
   return {
     products,
     loading,
