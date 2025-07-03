@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+// 1. Import các hook cần thiết từ next/navigation
+import { useRouter, usePathname } from "next/navigation";
 import api from "@/constants/apiURL";
 import { useFilter } from "@/contexts/FilterContext";
 
@@ -10,10 +12,11 @@ export default function useProductList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const productsPerPage = 8;
-
-  // --- LOGIC ĐÃ SỬA LỖI HOÀN CHỈNH ---
-  // 1. Thêm một state "trigger" để buộc fetch lại khi cần
   const [fetchTrigger, setFetchTrigger] = useState(0);
+
+  // 2. Khởi tạo router và pathname
+  const router = useRouter();
+  const pathname = usePathname();
 
   const {
     budget,
@@ -36,17 +39,12 @@ export default function useProductList() {
     minRange + ((maxRange - minRange) * budgetEnd) / 100
   );
 
-  // 2. Effect này chỉ có nhiệm vụ reset trang và kích hoạt trigger khi bộ lọc thay đổi
+  // Effect này chỉ có nhiệm vụ reset trang và kích hoạt trigger khi bộ lọc thay đổi
   useEffect(() => {
-    // Không chạy khi context đang tải lần đầu
     if (budgetLoading) return;
-
-    // Khi bộ lọc thay đổi, ta luôn muốn fetch lại từ trang 1
     setCurrentPage(1);
-    // Kích hoạt trigger để đảm bảo useEffect fetch sẽ chạy
     setFetchTrigger((c) => c + 1);
   }, [
-    // Danh sách dependencies chỉ bao gồm các giá trị của bộ lọc.
     minPrice,
     maxPrice,
     selectedConcents,
@@ -56,22 +54,20 @@ export default function useProductList() {
     selectedSubScents,
   ]);
 
-  // 3. Effect này là nơi duy nhất gọi API.
-  // Nó sẽ chạy khi `currentPage` thay đổi (do người dùng) HOẶC khi `fetchTrigger` thay đổi (do bộ lọc).
+  // Effect này là nơi duy nhất gọi API và cập nhật URL
   useEffect(() => {
-    // Chờ context tải xong và giá hợp lệ mới fetch
     if (budgetLoading || isNaN(minPrice) || isNaN(maxPrice)) {
       return;
     }
 
-    const fetchProducts = async () => {
+    const fetchProductsAndUpdateURL = async () => {
       setLoading(true);
       try {
         const queryParams = new URLSearchParams({
-          page: currentPage,
-          limit: productsPerPage,
-          minPrice: minPrice,
-          maxPrice: maxPrice,
+          page: currentPage.toString(),
+          limit: productsPerPage.toString(),
+          minPrice: minPrice.toString(),
+          maxPrice: maxPrice.toString(),
         });
 
         // Thêm các bộ lọc khác vào query
@@ -83,6 +79,12 @@ export default function useProductList() {
           queryParams.append("subScent", slug)
         );
 
+        // 3. Cập nhật URL trên thanh địa chỉ mà không tải lại trang
+        // Dùng `replace` để không tạo thêm lịch sử trình duyệt cho mỗi lần lọc
+        const newUrl = `${pathname}?${queryParams.toString()}`;
+        router.replace(newUrl, { scroll: false });
+
+        // 4. Fetch dữ liệu sản phẩm từ API như bình thường
         const response = await api.get(
           `/product-list?${queryParams.toString()}`
         );
@@ -96,8 +98,8 @@ export default function useProductList() {
       }
     };
 
-    fetchProducts();
-  }, [currentPage, fetchTrigger, budgetLoading]); // Chỉ phụ thuộc vào currentPage, trigger và budgetLoading
+    fetchProductsAndUpdateURL();
+  }, [currentPage, fetchTrigger, budgetLoading]);
 
   return {
     products,
