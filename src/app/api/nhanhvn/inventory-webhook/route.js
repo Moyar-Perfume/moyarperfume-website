@@ -19,7 +19,7 @@ export async function POST(req) {
     const { event } = body;
 
     // 2️⃣  Trả 200 OK cho Nhanh ngay lập tức
-    const resp = NextResponse.json(
+    const res = NextResponse.json(
       { message: "Webhook received" },
       { status: 200 }
     );
@@ -27,7 +27,7 @@ export async function POST(req) {
     // 3️⃣  Xử lý hậu trường theo event
     setTimeout(() => dispatchByEvent(event, body, log._id), 0);
 
-    return resp;
+    return res;
   } catch (err) {
     console.error("❌ Webhook error:", err.message);
     return NextResponse.json({ message: "Server error" }, { status: 500 });
@@ -178,12 +178,53 @@ async function handleProductUpdate({ data }) {
 
   const { baseName, capacity } = splitNameAndCapacity(name);
 
+  try {
+    const formData = new URLSearchParams();
+    formData.append("accessToken", process.env.ACCESS_TOKEN);
+    formData.append("version", process.env.API_VERSION);
+    formData.append("appId", process.env.APP_ID);
+    formData.append("businessId", process.env.BUSINESS_ID);
+    formData.append("data", nhanhID);
+
+    const { data: detailRes } = await axios.post(
+      "https://open.nhanh.vn/api/product/detail",
+      formData,
+      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+    );
+
+    const variantsFromNhanh = detailRes.data?.data?.[nhanhID];
+
+    if (!detailData) {
+      return console.error(
+        `❌ Không tìm thấy chi tiết cho sản phẩm ${nhanhID} từ Nhanh.vn.`
+      );
+    }
+
+    const processedVariants = Object.values(variantsFromNhanh).map(
+      (variant) => {
+        const { capacity } = splitNameAndCapacity(variant.name);
+        return {
+          nhanhID: variant.id.toString(),
+          capacity: capacity,
+          price: variant.price || 0,
+          quantity: variant.inventory?.remain || 0,
+          available: (variant.inventory?.remain || 0) > 0,
+        };
+      }
+    );
+  } catch (err) {
+    console.error("❌ Lỗi khi fetch brand từ Nhanh.vn:", err.message);
+  }
+
   const variantData = {
     nhanhID,
     capacity,
     price,
     quantity,
     available: quantity > 0,
+    showHot,
+    showNew,
+    showHome,
   };
 
   const slug = slugify(baseName, {

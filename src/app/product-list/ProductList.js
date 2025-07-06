@@ -1,107 +1,85 @@
-import ScrollToTopButton from "@/components/shared/ScrollToTopButton";
-import Product from "@/components/product/Product";
+"use client";
+
 import useProductList from "@/hooks/useProductList";
+import ScrollToTopButton from "@/components/shared/ScrollToTopButton";
+import Product from "@/components/product/Product"; // Sử dụng lại component Product cũ
 
 export default function ProductList() {
-  const { products, loading, currentPage, totalPages, handlePageChange } =
-    useProductList();
+  const {
+    products,
+    loading,
+    isAppending, // State mới để biết khi nào đang tải thêm
+    currentPage,
+    totalPages,
+    handlePageChange,
+  } = useProductList();
 
+  // Skeleton loader cho giao diện tối, không thay đổi
   const renderSkeletons = () => {
     return Array(8)
       .fill(0)
       .map((_, index) => (
         <div key={`skeleton-${index}`} className="p-2 animate-pulse">
           <div className="flex flex-col items-center">
-            <div className="bg-gray-200 w-full h-[300px] rounded-sm"></div>
+            <div className="bg-gray-800 w-full h-[300px] rounded-sm"></div>
             <div className="mt-5 w-full flex items-center gap-2">
-              <div className="h-0.5 bg-gray-200 flex-1"></div>
-              <div className="bg-gray-200 h-6 w-24 rounded"></div>
-              <div className="h-0.5 bg-gray-200 flex-1"></div>
+              <div className="h-0.5 bg-gray-800 flex-1"></div>
+              <div className="bg-gray-800 h-6 w-24 rounded"></div>
+              <div className="h-0.5 bg-gray-800 flex-1"></div>
             </div>
-            <div className="bg-gray-200 h-8 w-3/4 mt-2 rounded"></div>
+            <div className="bg-gray-800 h-8 w-3/4 mt-2 rounded"></div>
           </div>
         </div>
       ));
   };
 
-  const getPaginationNumbers = (current, total) => {
-    const pages = [];
-    if (total <= 7) {
-      for (let i = 1; i <= total; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      if (current > 4) pages.push("...");
-      const start = Math.max(2, current - 2);
-      const end = Math.min(total - 1, current + 2);
-      for (let i = start; i <= end; i++) pages.push(i);
-      if (current < total - 3) pages.push("...");
-      pages.push(total);
-    }
-    return pages;
-  };
+  // Hàm getPaginationNumbers không còn cần thiết nữa
+  // const getPaginationNumbers = (current, total) => { ... };
 
   return (
-    <div className="flex flex-col min-h-screen mt-10">
+    // Áp dụng nền tối và chữ trắng
+    <div className="bg-white text-black flex flex-col min-h-screen pt-10">
       <ScrollToTopButton />
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full items-center justify-around px-20 flex-grow">
+      {/* Giữ nguyên bố cục lưới sản phẩm */}
+      <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-grow">
+        {/* Chỉ hiển thị skeleton khi tải lần đầu */}
         {loading ? (
           renderSkeletons()
         ) : products.length > 0 ? (
+          // Sử dụng lại component Product cũ của bạn
           products.map((product) => (
-            <div key={`${product.slug}`}>
+            <div key={`${product.slug}-${product._id}`}>
               <Product product={product} imageSize="h-[300px]" />
             </div>
           ))
         ) : (
-          <div className="col-span-full text-center py-12">
-            <p className="text-xl">
-              Không tìm thấy sản phẩm phù hợp với bộ lọc.
+          <div className="col-span-full text-center py-20">
+            <p className="text-xl font-serif">No products found</p>
+            <p className="mt-2 text-gray-400">
+              Please try adjusting your filters.
             </p>
-            <p className="mt-2">Vui lòng thử lại với bộ lọc khác.</p>
           </div>
         )}
       </section>
 
-      {/* Phân trang */}
-      {totalPages > 1 && !loading && (
-        <div className="flex justify-center items-center gap-2 text-sm flex-wrap my-10">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-4 py-2 border rounded disabled:opacity-50"
-          >
-            Trước
-          </button>
-
-          {getPaginationNumbers(currentPage, totalPages).map((page, index) =>
-            page === "..." ? (
-              <span key={`dots-${index}`} className="px-3 py-2">
-                ...
-              </span>
-            ) : (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`px-4 py-2 border rounded ${
-                  currentPage === page
-                    ? "bg-black text-white"
-                    : "hover:bg-gray-100"
-                }`}
-              >
-                {page}
-              </button>
-            )
-          )}
-
+      {/* THAY THẾ PHÂN TRANG BẰNG NÚT "LOAD MORE" */}
+      <div className="text-center my-16 h-10">
+        {/* Hiển thị spinner khi đang tải thêm sản phẩm */}
+        {isAppending && (
+          <div className="flex justify-center items-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          </div>
+        )}
+        {/* Hiển thị nút khi có thể tải thêm và không đang loading */}
+        {!loading && !isAppending && currentPage < totalPages && (
           <button
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 border rounded disabled:opacity-50"
+            className="border border-gray-600 text-black text-sm uppercase tracking-wider py-3 px-12 hover:bg-black hover:text-white transition-colors"
           >
-            Sau
+            Load More
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

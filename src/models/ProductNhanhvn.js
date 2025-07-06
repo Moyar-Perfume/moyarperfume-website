@@ -6,6 +6,9 @@ const VariantSchema = new mongoose.Schema({
   quantity: { type: Number, required: true, default: 0 },
   available: { type: Boolean, default: true },
   nhanhID: { type: String, required: true },
+  showHot: { type: Boolean, default: false },
+  showNew: { type: Boolean, default: false },
+  showHome: { type: Boolean, default: false },
 });
 
 const ProductNhanhvnSchema = new mongoose.Schema(
@@ -20,9 +23,6 @@ const ProductNhanhvnSchema = new mongoose.Schema(
     description: { type: String },
     content: { type: String },
     nhanhBrandID: { type: String },
-    showHot: { type: Boolean, default: false },
-    showNew: { type: Boolean, default: false },
-    showHome: { type: Boolean, default: false },
     brandID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Brand",

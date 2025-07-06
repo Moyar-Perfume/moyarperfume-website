@@ -1,20 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// 1. Import các hook cần thiết từ next/navigation
 import { useRouter, usePathname } from "next/navigation";
 import api from "@/constants/apiURL";
 import { useFilter } from "@/contexts/FilterContext";
 
 export default function useProductList() {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Chỉ dùng cho lần tải đầu tiên
+  const [isAppending, setIsAppending] = useState(false); // Dùng khi tải thêm
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const productsPerPage = 8;
-  const [fetchTrigger, setFetchTrigger] = useState(0);
-
-  // 2. Khởi tạo router và pathname
   const router = useRouter();
   const pathname = usePathname();
 
@@ -39,11 +36,10 @@ export default function useProductList() {
     minRange + ((maxRange - minRange) * budgetEnd) / 100
   );
 
-  // Effect này chỉ có nhiệm vụ reset trang và kích hoạt trigger khi bộ lọc thay đổi
+  // Effect này chỉ có nhiệm vụ reset trang về 1 khi bộ lọc thay đổi.
   useEffect(() => {
     if (budgetLoading) return;
     setCurrentPage(1);
-    setFetchTrigger((c) => c + 1);
   }, [
     minPrice,
     maxPrice,
@@ -54,14 +50,18 @@ export default function useProductList() {
     selectedSubScents,
   ]);
 
-  // Effect này là nơi duy nhất gọi API và cập nhật URL
+  // Effect này là nơi duy nhất gọi API.
   useEffect(() => {
-    if (budgetLoading || isNaN(minPrice) || isNaN(maxPrice)) {
-      return;
-    }
+    if (budgetLoading || isNaN(minPrice) || isNaN(maxPrice)) return;
 
-    const fetchProductsAndUpdateURL = async () => {
-      setLoading(true);
+    const fetchProducts = async () => {
+      // Phân biệt trạng thái loading cho lần đầu và các lần tải thêm
+      if (currentPage === 1) {
+        setLoading(true);
+      } else {
+        setIsAppending(true);
+      }
+
       try {
         const queryParams = new URLSearchParams({
           page: currentPage.toString(),
@@ -79,31 +79,38 @@ export default function useProductList() {
           queryParams.append("subScent", slug)
         );
 
-        // 3. Cập nhật URL trên thanh địa chỉ mà không tải lại trang
-        // Dùng `replace` để không tạo thêm lịch sử trình duyệt cho mỗi lần lọc
+        // Cập nhật URL
         const newUrl = `${pathname}?${queryParams.toString()}`;
         router.replace(newUrl, { scroll: false });
 
-        // 4. Fetch dữ liệu sản phẩm từ API như bình thường
+        // Fetch dữ liệu
         const response = await api.get(
           `/product-list?${queryParams.toString()}`
         );
         const { products: newProducts, pagination } = response.data;
-        setProducts(newProducts);
+
+        // *** LOGIC LOAD MORE: Nối hoặc thay thế sản phẩm ***
+        if (currentPage === 1) {
+          setProducts(newProducts); // Thay thế khi ở trang 1
+        } else {
+          setProducts((prev) => [...prev, ...newProducts]); // Nối vào khi ở trang > 1
+        }
         setTotalPages(pagination.totalPages);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
         setLoading(false);
+        setIsAppending(false);
       }
     };
 
-    fetchProductsAndUpdateURL();
-  }, [currentPage, fetchTrigger, budgetLoading]);
+    fetchProducts();
+  }, [currentPage, budgetLoading]);
 
   return {
     products,
     loading,
+    isAppending,
     currentPage,
     totalPages,
     handlePageChange: setCurrentPage,
